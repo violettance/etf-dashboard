@@ -1,31 +1,45 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "Which ETF? — data-driven fund selection",
+  title: "ETF Decision Dashboard",
   description:
-    "Rank ETFs against a stated investment goal, with the reasoning behind every ranking.",
+    "Screen US-listed ETFs, compare category performance and risk-return patterns, and drill into live prices.",
 }
+
+const NAV = [
+  { href: "/", label: "Overview" },
+  { href: "/performers", label: "Top performers" },
+  { href: "/risk-return", label: "Risk & return" },
+  { href: "/categories", label: "Categories" },
+  { href: "/screener", label: "Screener" },
+  { href: "/news", label: "News sentiment" },
+]
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background antialiased">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="border-b">
-            <nav className="mx-auto flex max-w-4xl items-center gap-6 px-6 py-4 text-sm">
-              <Link href="/" className="font-medium">
-                Which ETF?
-              </Link>
-              <Link href="/methodology" className="text-muted-foreground hover:text-foreground">
-                Methodology
-              </Link>
+    <html lang="en">
+      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+        <header className="border-b border-slate-200 bg-white">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3">
+            <Link href="/" className="text-sm font-semibold tracking-tight">
+              ETF Decision Dashboard
+            </Link>
+            <nav className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+              {NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-slate-600 transition-colors hover:text-slate-900"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
-          {children}
-        </ThemeProvider>
+        </header>
+        {children}
       </body>
     </html>
   )

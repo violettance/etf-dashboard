@@ -1,62 +1,100 @@
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-import { GOALS } from "@/lib/data/goals"
-import { UNIVERSE } from "@/lib/data/universe"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { universeStats, categoryPerformance } from "@/lib/data/analytics"
+import { screen } from "@/lib/data/directory"
+import { money, num, pct } from "@/lib/format"
+import { StatCard } from "@/components/v2/stat-card"
+import { SnapshotBanner } from "@/components/v2/snapshot-banner"
+import { CategoryMixChart, YieldHistogram } from "@/components/v2/snapshot-charts"
+import { CategoryPerformanceChart } from "@/components/v2/analytics-charts"
 
-export default function HomePage() {
+export const dynamic = "force-static"
+
+export default function OverviewPage() {
+  const stats = universeStats()
+  const view = screen({
+    q: "",
+    category: "",
+    minAum: null,
+    minYield: null,
+    sort: "aum",
+    dir: "desc",
+    page: 1,
+    perPage: 1,
+  })
+  const categories = categoryPerformance(10)
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16">
-      <header className="mb-12">
-        <h1 className="text-4xl font-semibold tracking-tight">Compare ETFs on what actually differs</h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Pick what you are comparing for. Funds are lined up side by side on cost, risk,
-          liquidity and track record, with the numbers behind each one shown in full. The
-          conclusion is yours to draw.
+    <main className="mx-auto max-w-7xl px-6 py-8">
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          The shape of the US-listed ETF market, and where to start narrowing it down.
         </p>
       </header>
 
-      <section aria-labelledby="goals-heading">
-        <h2 id="goals-heading" className="mb-4 text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          What are you comparing for?
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {GOALS.map((goal) => {
-            const count = UNIVERSE.filter((e) => goal.categories.includes(e.category)).length
-            return (
-              <Link
-                key={goal.id}
-                href={`/compare/${goal.id}`}
-                className="group rounded-lg outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <Card className="h-full transition-colors group-hover:border-foreground/30">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between text-base">
-                      {goal.label}
-                      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                    </CardTitle>
-                    <CardDescription>{goal.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-xs text-muted-foreground">{count} funds compared</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            )
-          })}
+      <SnapshotBanner />
+
+      <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard label="ETFs tracked" value={num(stats.total)} note={`${num(stats.investable)} investable`} />
+        <StatCard label="Combined assets" value={money(stats.totalAum)} />
+        <StatCard label="Issuers" value={num(stats.issuers)} note={`${stats.categories} categories`} />
+        <StatCard
+          label="Median 3Y return"
+          value={pct(stats.medianRet3y, 1)}
+          note={`5Y ${pct(stats.medianRet5y, 1)} · median yield ${pct(stats.medianYield, 2)}`}
+        />
+      </section>
+
+      <p className="mb-6 text-xs leading-relaxed text-slate-500">
+        Medians rather than means, and leveraged and inverse funds excluded: a handful of 3x
+        products have returns extreme enough to drag an average into meaninglessness.
+      </p>
+
+      <section className="mb-6 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="mb-3 text-sm font-medium text-slate-700">Largest categories by fund count</h2>
+          <CategoryMixChart data={view.categoryMix} />
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="mb-3 text-sm font-medium text-slate-700">Distribution of dividend yields</h2>
+          <YieldHistogram data={view.yieldBuckets} />
         </div>
       </section>
 
-      <footer className="mt-16 border-t pt-6 text-xs leading-relaxed text-muted-foreground">
-        <p>
-          This tool shows published fund data side by side. It does not recommend funds, does not
-          know your circumstances, and is not investment advice. Past performance does not predict
-          future results.{" "}
-          <Link href="/methodology" className="underline underline-offset-2 hover:text-foreground">
-            How the numbers are calculated
+      <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-sm font-medium text-slate-700">
+            Category performance — median 3Y vs 5Y
+          </h2>
+          <Link href="/categories" className="text-xs text-slate-500 underline underline-offset-2">
+            All categories
           </Link>
-        </p>
-      </footer>
+        </div>
+        <CategoryPerformanceChart
+          data={categories.map((c) => ({
+            category: c.category,
+            ret3y: (c.ret3y ?? 0) * 100,
+            ret5y: (c.ret5y ?? 0) * 100,
+          }))}
+        />
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        {[
+          { href: "/screener", title: "Screener", body: "Filter 4,148 funds by category, assets and yield." },
+          { href: "/risk-return", title: "Risk & return", body: "Which funds delivered consistently, and which had one good run." },
+          { href: "/performers", title: "Top performers", body: "Leaders by 3Y, 5Y and yield — with the caveats." },
+        ].map((c) => (
+          <Link
+            key={c.href}
+            href={c.href}
+            className="rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-slate-400"
+          >
+            <div className="text-sm font-medium">{c.title}</div>
+            <div className="mt-1 text-xs text-slate-600">{c.body}</div>
+          </Link>
+        ))}
+      </section>
     </main>
   )
 }
