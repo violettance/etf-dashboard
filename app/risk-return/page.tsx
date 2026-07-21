@@ -29,13 +29,13 @@ export default function RiskReturnPage() {
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="text-2xl font-semibold tabular-nums">{aboveLine}</div>
           <div className="mt-1 text-xs text-slate-600">
-            funds well above the diagonal — recent strength that the longer record does not support
+            funds well above the diagonal, recent strength that the longer record does not support
           </div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="text-2xl font-semibold tabular-nums">{belowLine}</div>
           <div className="mt-1 text-xs text-slate-600">
-            funds well below — a weaker recent run than their five-year record
+            funds well below, a weaker recent run than their five-year record
           </div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white p-4">
@@ -43,7 +43,7 @@ export default function RiskReturnPage() {
             {points.length - aboveLine - belowLine}
           </div>
           <div className="mt-1 text-xs text-slate-600">
-            near the diagonal — consistent across both horizons
+            near the diagonal, consistent across both horizons
           </div>
         </div>
       </section>
@@ -58,7 +58,7 @@ export default function RiskReturnPage() {
           trailing return is a poor way to choose a fund.
         </p>
         <p className="mt-3 text-slate-600">
-          Leveraged and inverse products, and funds under $50M in assets, are excluded — their
+          Leveraged and inverse products, and funds under $50M in assets, are excluded, their
           returns are extreme enough to compress everything else into an unreadable cluster.
         </p>
       </div>

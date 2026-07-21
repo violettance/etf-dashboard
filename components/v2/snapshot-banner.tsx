@@ -19,7 +19,7 @@ export function SnapshotBanner({ note }: { note?: string }) {
             year: "numeric",
           })}
         </time>{" "}
-        from {SNAPSHOT_SOURCE} — roughly {months} months old. {note ?? "Open any fund for live prices."}
+        from {SNAPSHOT_SOURCE}, roughly {months} months old. {note ?? "Open any fund for live prices."}
       </span>
     </div>
   )

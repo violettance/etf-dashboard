@@ -1,5 +1,12 @@
 import { cached } from "@/lib/cache"
-import { alphaVantageNews, NEWS_TOPICS, summarise, type NewsTopic, type NewsItem } from "@/lib/providers/alpha-vantage"
+import {
+  alphaVantageNews,
+  getManyTopics,
+  NEWS_TOPICS,
+  summarise,
+  type NewsItem,
+  type NewsTopic,
+} from "@/lib/providers/alpha-vantage"
 
 /** Free tier is 25 calls/day, so this is cached hard and revalidated slowly. */
 export const revalidate = 10800
@@ -29,14 +36,44 @@ function SentimentMeter({ score }: { score: number }) {
   )
 }
 
-async function loadTopic(topic: NewsTopic) {
-  try {
-    const result = await cached(`news:${topic}`, 3 * 60 * 60 * 1000, () =>
-      alphaVantageNews.getTopicNews(topic, 10)
+/** Six hours, so the five-topic "all" view stays inside the 25/day free tier. */
+const NEWS_TTL_MS = 6 * 60 * 60 * 1000
+
+function fetchTopic(topic: NewsTopic, limit: number) {
+  return cached(`news:${topic}`, NEWS_TTL_MS, () =>
+    alphaVantageNews.getTopicNews(topic, limit)
+  ).then((r) => r.value)
+}
+
+type Loaded = {
+  items: (NewsItem & { topic?: NewsTopic })[]
+  error: string | null
+  failedTopics: NewsTopic[]
+}
+
+async function load(topic: NewsTopic | "all"): Promise<Loaded> {
+  if (topic === "all") {
+    const { items, failed } = await getManyTopics(
+      NEWS_TOPICS.map((t) => t.key),
+      6,
+      (t) => fetchTopic(t, 6)
     )
-    return { items: result.value, stale: result.stale, error: null as string | null }
+    return {
+      items,
+      // Only a total failure is an error; partial results are shown with a note.
+      error: items.length === 0 && failed.length > 0 ? "No topics could be loaded" : null,
+      failedTopics: failed,
+    }
+  }
+
+  try {
+    return { items: await fetchTopic(topic, 12), error: null, failedTopics: [] }
   } catch (e) {
-    return { items: [] as NewsItem[], stale: false, error: e instanceof Error ? e.message : "Failed" }
+    return {
+      items: [],
+      error: e instanceof Error ? e.message : "Failed",
+      failedTopics: [topic],
+    }
   }
 }
 
@@ -47,7 +84,10 @@ export default async function NewsPage({
 }) {
   const sp = await searchParams
   const raw = Array.isArray(sp.topic) ? sp.topic[0] : sp.topic
-  const topic = (NEWS_TOPICS.find((t) => t.key === raw)?.key ?? "technology") as NewsTopic
+  // Defaults to every topic: a single topic can legitimately return nothing,
+  // and an empty page is indistinguishable from a broken one.
+  const topic: NewsTopic | "all" =
+    raw && raw !== "all" ? (NEWS_TOPICS.find((t) => t.key === raw)?.key ?? "all") : "all"
 
   if (!alphaVantageNews.available) {
     return (
@@ -65,7 +105,7 @@ export default async function NewsPage({
     )
   }
 
-  const { items, stale, error } = await loadTopic(topic)
+  const { items, error, failedTopics } = await load(topic)
   const summary = summarise(items)
 
   return (
@@ -79,6 +119,16 @@ export default async function NewsPage({
       </header>
 
       <nav className="mb-6 flex flex-wrap gap-2">
+        <a
+          href="/news"
+          className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+            topic === "all"
+              ? "border-slate-900 bg-slate-900 text-white"
+              : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
+          }`}
+        >
+          All topics
+        </a>
         {NEWS_TOPICS.map((t) => (
           <a
             key={t.key}
@@ -101,9 +151,13 @@ export default async function NewsPage({
         </div>
       )}
 
-      {stale && (
+      {failedTopics.length > 0 && items.length > 0 && (
         <div className="mb-6 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
-          Showing the last successful fetch — the upstream quota is currently exhausted.
+          {failedTopics.length} of {NEWS_TOPICS.length} topics could not be loaded (
+          {failedTopics
+            .map((f) => NEWS_TOPICS.find((t) => t.key === f)?.label ?? f)
+            .join(", ")}
+          ). The articles below are from the topics that succeeded.
         </div>
       )}
 
@@ -160,6 +214,14 @@ export default async function NewsPage({
               </span>
             </div>
             <p className="mt-1 text-xs text-slate-500">
+              {item.topic && topic === "all" && (
+                <>
+                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-600">
+                    {NEWS_TOPICS.find((t) => t.key === item.topic)?.label}
+                  </span>{" "}
+                  ·{" "}
+                </>
+              )}
               {item.source} ·{" "}
               <time dateTime={item.publishedAt}>
                 {new Date(item.publishedAt).toLocaleString("en-GB", {
@@ -204,8 +266,9 @@ export default async function NewsPage({
 
       <p className="mt-8 border-t border-slate-200 pt-6 text-xs leading-relaxed text-slate-500">
         Sentiment scores are produced by Alpha Vantage, not by this application. The free tier
-        allows 25 requests per day across all topics, so responses are cached for three hours and
-        the last successful result is served if the quota runs out.
+        allows 25 requests per day across all topics. Responses are cached for six hours so the
+        combined view stays inside that budget, and a topic that fails is skipped rather than
+        taking the whole page down with it.
       </p>
     </main>
   )

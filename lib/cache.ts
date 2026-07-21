@@ -5,7 +5,7 @@
  *
  *  1. Free-tier quotas. Twelve Data allows 800 calls/day and 8/min; FMP allows
  *     250/day. Without a server cache every visitor burns quota directly, which
- *     is exactly what the previous localStorage-based approach did — each new
+ *     is exactly what the previous localStorage-based approach did, each new
  *     browser started with an empty cache and hit the upstream again.
  *
  *  2. Availability. When an upstream fails or the quota is exhausted, serving

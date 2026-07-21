@@ -94,7 +94,7 @@ export default async function PerformersPage({
       <p className="mt-6 border-t border-slate-200 pt-6 text-xs leading-relaxed text-slate-500">
         A high trailing return is a description of the past, not a prediction. Compare the 3Y and
         5Y columns: a fund leading on one but not the other had a single strong period rather than
-        a durable pattern — the <Link href="/risk-return" className="underline underline-offset-2">risk &amp; return</Link>{" "}
+        a durable pattern, the <Link href="/risk-return" className="underline underline-offset-2">risk &amp; return</Link>{" "}
         view plots this directly.
       </p>
     </main>

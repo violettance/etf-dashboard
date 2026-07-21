@@ -9,7 +9,7 @@ import type { HistoryProvider, PriceBar } from "./types"
  * (volatility, drawdown, Sharpe) need multi-year history for the whole universe;
  * paying quota for that would exhaust the free tier immediately.
  *
- * Returns CSV, so responses are parsed defensively — a rate-limited or blocked
+ * Returns CSV, so responses are parsed defensively, a rate-limited or blocked
  * request yields an HTML error page rather than a non-200 status.
  */
 const BASE = "https://stooq.com/q/d/l/"

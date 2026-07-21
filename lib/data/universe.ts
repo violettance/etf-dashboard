@@ -13,8 +13,8 @@ import type { Goal } from "./goals"
  * issuer's own page, rather than fetched from a paid API. `providers/fmp.ts`
  * can refresh them automatically if an API key is ever configured.
  *
- * Everything that genuinely moves — price, volume, volatility, drawdown,
- * holdings — is fetched live and never hardcoded here.
+ * Everything that genuinely moves, price, volume, volatility, drawdown,
+ * holdings, is fetched live and never hardcoded here.
  */
 
 export type UniverseEntry = {

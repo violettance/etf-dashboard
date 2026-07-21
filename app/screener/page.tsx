@@ -16,15 +16,15 @@ export const dynamic = "force-dynamic"
 const PER_PAGE = 25
 
 const nf = new Intl.NumberFormat("en-US")
-const pct = (v: number | null, d = 2) => (v === null ? "—" : `${(v * 100).toFixed(d)}%`)
+const pct = (v: number | null, d = 2) => (v === null ? "n/a" : `${(v * 100).toFixed(d)}%`)
 const money = (v: number | null) => {
-  if (v === null) return "—"
+  if (v === null) return "n/a"
   if (v >= 1e9) return `$${(v / 1e9).toFixed(1)}B`
   if (v >= 1e6) return `$${(v / 1e6).toFixed(0)}M`
   return `$${nf.format(Math.round(v))}`
 }
 const compact = (v: number | null) =>
-  v === null ? "—" : v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : nf.format(Math.round(v))
+  v === null ? "n/a" : v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : nf.format(Math.round(v))
 
 function parseQuery(sp: Record<string, string | string[] | undefined>): ScreenerQuery {
   const one = (k: string) => {
@@ -107,7 +107,7 @@ export default async function DashboardPage({
               year: "numeric",
             })}
           </time>{" "}
-          from {SNAPSHOT_SOURCE} — about {ageMonths} months ago. Use them to shortlist, then open a
+          from {SNAPSHOT_SOURCE}, about {ageMonths} months ago. Use them to shortlist, then open a
           fund for live prices and risk metrics.
         </span>
       </div>

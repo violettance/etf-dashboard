@@ -17,7 +17,7 @@ import type { UniverseEntry } from "./universe"
  * Live data is best-effort by design. If Stooq is unreachable, the fund is
  * still scored on the dimensions that do not need price history, and the
  * missing dimensions are reported as such rather than silently defaulting to
- * zero — a fund with no data should not look like a fund with bad data.
+ * zero, a fund with no data should not look like a fund with bad data.
  */
 
 const HISTORY_TTL_MS = 6 * 60 * 60 * 1000

@@ -1,7 +1,7 @@
 # Which ETF?
 
 A tool for comparing US-listed ETFs on the things that actually differ between
-them — cost, risk, liquidity and track record — with the numbers behind every
+them, cost, risk, liquidity and track record, with the numbers behind every
 figure shown in full.
 
 It does not recommend funds. It lines comparable funds up side by side and
@@ -16,7 +16,7 @@ credentials.
 
 Most ETF dashboards, including the first version of this one, chart the
 distribution of the whole ETF universe: median three-year returns, dividend
-yield histograms, category averages. Those charts are accurate and useless —
+yield histograms, category averages. Those charts are accurate and useless
 nobody makes a decision with the median five-year return of 4,000 funds.
 
 The problem people actually have is narrower: *these six funds look identical,
@@ -39,7 +39,7 @@ Expense ratios and inception dates are *reference* data: set by the issuer,
 changing roughly once a year. They are recorded in source with the date each
 figure was verified and a link to the issuer's own page.
 
-Everything that genuinely moves — price, volume, volatility, drawdown — is
+Everything that genuinely moves, price, volume, volatility, drawdown, is
 fetched live and never hardcoded.
 
 ### Missing data is shown, not guessed
@@ -80,7 +80,7 @@ lib/
 | Twelve Data | Live intraday quotes *(optional upgrade)* | Yes |
 | Financial Modeling Prep | Automated expense-ratio refresh *(optional)* | Yes |
 
-The two optional providers are exactly that — the app is fully functional
+The two optional providers are exactly that, the app is fully functional
 without them.
 
 ---
@@ -139,4 +139,4 @@ fund. Past performance does not predict future results.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

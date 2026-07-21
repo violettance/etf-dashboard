@@ -74,7 +74,7 @@ function scoreCost(f: FundFacts): DimensionScore {
   return {
     dimension: "cost",
     score,
-    explanation: `Expense ratio ${pct(f.expenseRatio, 3)} — compounds to roughly ${pct(drag20y, 1)} of your balance over 20 years.`,
+    explanation: `Expense ratio ${pct(f.expenseRatio, 3)}, compounds to roughly ${pct(drag20y, 1)} of your balance over 20 years.`,
   }
 }
 
@@ -102,7 +102,7 @@ function scoreLiquidity(f: FundFacts): DimensionScore {
   return {
     dimension: "liquidity",
     score,
-    explanation: `${detail.join(", ")} — ${score > 70 ? "trades with tight spreads" : score > 40 ? "adequately liquid for most investors" : "thin enough that spreads may cost more than the expense ratio"}.`,
+    explanation: `${detail.join(", ")}, ${score > 70 ? "trades with tight spreads" : score > 40 ? "adequately liquid for most investors" : "thin enough that spreads may cost more than the expense ratio"}.`,
   }
 }
 
@@ -121,10 +121,10 @@ function scoreTrackRecord(f: FundFacts): DimensionScore {
     score,
     explanation:
       years >= 15
-        ? `${years.toFixed(0)} years of history — has been tested through multiple market cycles including 2008 and 2020.`
+        ? `${years.toFixed(0)} years of history, has been tested through multiple market cycles including 2008 and 2020.`
         : years >= 5
-          ? `${years.toFixed(0)} years of history — covers at least one significant drawdown.`
-          : `Only ${years.toFixed(1)} years of history — has not been tested through a full market cycle.`,
+          ? `${years.toFixed(0)} years of history, covers at least one significant drawdown.`
+          : `Only ${years.toFixed(1)} years of history, has not been tested through a full market cycle.`,
   }
 }
 
@@ -146,7 +146,7 @@ function scoreRisk(f: FundFacts): DimensionScore {
   return {
     dimension: "risk",
     score,
-    explanation: `${detail.join(", ")} — a ${pct(f.maxDrawdown ?? 0, 0)} fall means $10,000 became $${(10000 * (1 - (f.maxDrawdown ?? 0))).toFixed(0)} at the trough.`,
+    explanation: `${detail.join(", ")}, a ${pct(f.maxDrawdown ?? 0, 0)} fall means $10,000 became $${(10000 * (1 - (f.maxDrawdown ?? 0))).toFixed(0)} at the trough.`,
   }
 }
 
@@ -165,8 +165,8 @@ function scoreDiversification(f: FundFacts): DimensionScore {
     score,
     explanation:
       f.top10Weight > 0.45
-        ? `Top 10 holdings are ${pct(f.top10Weight, 0)} of the fund — concentrated enough that a handful of companies drive most of the return.`
-        : `Top 10 holdings are ${pct(f.top10Weight, 0)} of the fund — broadly spread.`,
+        ? `Top 10 holdings are ${pct(f.top10Weight, 0)} of the fund, concentrated enough that a handful of companies drive most of the return.`
+        : `Top 10 holdings are ${pct(f.top10Weight, 0)} of the fund, broadly spread.`,
   }
 }
 

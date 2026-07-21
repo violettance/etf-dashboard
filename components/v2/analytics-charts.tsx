@@ -58,7 +58,7 @@ export function TopPerformersChart({
           formatter={(v: number) => [`${v.toFixed(2)}%`, "Annualised return"]}
           labelFormatter={(label: string) => {
             const row = data.find((d) => d.symbol === label)
-            return row ? `${row.symbol} — ${row.name}` : label
+            return row ? `${row.symbol}, ${row.name}` : label
           }}
         />
         <Bar dataKey="value" radius={[0, 3, 3, 0]}>

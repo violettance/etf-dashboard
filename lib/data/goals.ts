@@ -3,7 +3,7 @@
  *
  * The product's entry point is a goal, not a filter. Each goal defines which
  * scoring dimensions matter and how much. Weights are surfaced in the UI and
- * can be overridden by the user — a recommendation engine that hides its
+ * can be overridden by the user, a recommendation engine that hides its
  * reasoning is just a ranked list with extra steps.
  */
 

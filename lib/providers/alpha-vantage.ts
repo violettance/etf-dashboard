@@ -140,6 +140,38 @@ export const alphaVantageNews = {
   },
 }
 
+/**
+ * Fetches several topics, tolerating partial failure.
+ *
+ * The free tier allows 25 calls a day, so the "all topics" view is the most
+ * expensive thing in the app: five calls per cache miss. Topics are fetched
+ * sequentially and a failure on one does not discard the others, a partial
+ * feed is more useful than an error page.
+ */
+export async function getManyTopics(
+  topics: readonly NewsTopic[],
+  perTopic: number,
+  fetchOne: (t: NewsTopic) => Promise<NewsItem[]>
+): Promise<{ items: (NewsItem & { topic: NewsTopic })[]; failed: NewsTopic[] }> {
+  const items: (NewsItem & { topic: NewsTopic })[] = []
+  const failed: NewsTopic[] = []
+
+  for (const topic of topics) {
+    try {
+      const got = await fetchOne(topic)
+      items.push(...got.map((i) => ({ ...i, topic })))
+    } catch {
+      failed.push(topic)
+    }
+  }
+
+  // De-duplicate: the same article often appears under several topics.
+  const seen = new Set<string>()
+  const unique = items.filter((i) => (seen.has(i.url) ? false : (seen.add(i.url), true)))
+  unique.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  return { items: unique.slice(0, perTopic * topics.length), failed }
+}
+
 /** Aggregate sentiment for a topic, used for the summary strip. */
 export function summarise(items: NewsItem[]) {
   if (items.length === 0) return null

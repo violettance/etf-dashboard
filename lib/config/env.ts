@@ -17,11 +17,11 @@ if (typeof window !== "undefined") {
 }
 
 const schema = z.object({
-  /** Twelve Data — live quotes and daily series. Free tier: 800/day, 8/min. */
+  /** Twelve Data, live quotes and daily series. Free tier: 800/day, 8/min. */
   TWELVE_DATA_API_KEY: z.string().min(1).optional(),
-  /** Alpha Vantage — news & sentiment feed. */
+  /** Alpha Vantage, news & sentiment feed. */
   ALPHA_VANTAGE_API_KEY: z.string().min(1).optional(),
-  /** Financial Modeling Prep — expense ratios. Optional: SEC EDGAR is the fallback. */
+  /** Financial Modeling Prep, expense ratios. Optional: SEC EDGAR is the fallback. */
   FMP_API_KEY: z.string().min(1).optional(),
   /** SQLite file path (Phase 2). */
   DATABASE_URL: z.string().default("file:./data/etf.db"),
@@ -47,7 +47,7 @@ export const providerAvailability = {
   twelveData: Boolean(env.TWELVE_DATA_API_KEY),
   alphaVantage: Boolean(env.ALPHA_VANTAGE_API_KEY),
   fmp: Boolean(env.FMP_API_KEY),
-  /** Always available — SEC EDGAR and Stooq need no credentials. */
+  /** Always available, SEC EDGAR and Stooq need no credentials. */
   secEdgar: true,
   stooq: true,
 } as const

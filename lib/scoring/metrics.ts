@@ -87,7 +87,7 @@ export function sharpeRatio(returns: readonly number[], riskFreeRate = 0): numbe
 }
 
 /**
- * Sortino ratio — like Sharpe, but only penalises downside deviation.
+ * Sortino ratio, like Sharpe, but only penalises downside deviation.
  * More appropriate than Sharpe when a fund's upside is asymmetric.
  */
 export function sortinoRatio(returns: readonly number[], riskFreeRate = 0): number {
