@@ -2,14 +2,13 @@ import Link from "next/link"
 import {
   CATEGORIES,
   SNAPSHOT_DATE,
-  SNAPSHOT_SOURCE,
   SORT_KEYS,
   screen,
-  snapshotAgeMonths,
   type ScreenerQuery,
   type SortKey,
 } from "@/lib/data/directory"
 import { CategoryMixChart, YieldHistogram } from "@/components/v2/snapshot-charts"
+import { SnapshotBanner } from "@/components/v2/snapshot-banner"
 
 export const dynamic = "force-dynamic"
 
@@ -83,7 +82,6 @@ export default async function DashboardPage({
 }) {
   const query = parseQuery(await searchParams)
   const result = screen(query)
-  const ageMonths = snapshotAgeMonths()
   const filtered = Boolean(query.q || query.category || query.minAum || query.minYield)
 
   return (
@@ -95,22 +93,7 @@ export default async function DashboardPage({
         </p>
       </header>
 
-      {/* Data provenance is stated before any number is shown, not buried in a footnote. */}
-      <div className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm">
-        <span className="font-medium text-slate-900">Snapshot data</span>
-        <span className="text-slate-600">
-          The figures in this table were captured on{" "}
-          <time dateTime={SNAPSHOT_DATE} className="font-medium text-slate-900">
-            {new Date(SNAPSHOT_DATE).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </time>{" "}
-          from {SNAPSHOT_SOURCE}, about {ageMonths} months ago. Use them to shortlist, then open a
-          fund for live prices and risk metrics.
-        </span>
-      </div>
+      <SnapshotBanner note="Open any fund for live prices and risk metrics." />
 
       {/* Where the current filters have got you. */}
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Current selection">
