@@ -1,130 +1,173 @@
-"use client"
-import { Moon, Sun, TrendingUp, BarChart3, Newspaper, Zap, Grid3X3 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useTheme } from "next-themes"
-import { useIsMobile } from "@/hooks/use-mobile"
-import { trackVirtualPageView, setUserProperties, trackCustomEvent } from "@/lib/gtm"
-import { useEffect } from "react"
-import OverviewTab from "@/components/overview-tab"
-import NewsSentimentTab from "@/components/news-sentiment-tab"
-import RealTimeTab from "@/components/real-time-tab"
-import TopPerformersTab from "@/components/top-performers-tab"
-import CategoryPerformanceTab from "@/components/category-performance-tab"
-import GTMDebug from "@/components/gtm-debug"
+import Link from "next/link"
+import {
+  universeStats,
+  categoryPerformance,
+  issuerConcentration,
+  weightedReturns,
+  thinlyTraded,
+} from "@/lib/data/analytics"
+import { screen } from "@/lib/data/directory"
+import { money, num, pct } from "@/lib/format"
+import { StatCard } from "@/components/v2/stat-card"
+import { SnapshotBanner } from "@/components/v2/snapshot-banner"
+import { CategoryMixChart, YieldHistogram } from "@/components/v2/snapshot-charts"
+import { CategoryPerformanceChart } from "@/components/v2/analytics-charts"
 
-export default function ETFDashboard() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-  const { theme, setTheme } = useTheme()
+export const dynamic = "force-static"
 
-  // Set user properties on component mount
-  useEffect(() => {
-    const deviceType = isMobile ? 'mobile' : 'desktop';
-    const sessionId = Date.now().toString();
-    
-    setUserProperties({
-      device_type: deviceType,
-      session_id: sessionId
-    });
-
-    // Track initial page view for real-time tab (default)
-    trackVirtualPageView('/real-time', 'Real Time Tab');
-  }, [isMobile]);
-
-  // Handle tab changes for virtual page view tracking
-  const handleTabChange = (value: string) => {
-    const tabMappings: Record<string, { path: string; title: string }> = {
-      'real-time': { path: '/real-time', title: 'Real Time Tab' },
-      'overview': { path: '/overview', title: 'Overview Tab' },
-      'news-sentiment': { path: '/news-sentiment', title: 'News Sentiment Tab' },
-      'top-performers': { path: '/top-performers', title: 'Top Performers Tab' },
-      'category-performance': { path: '/category-performance', title: 'Category Performance Tab' }
-    };
-
-    const tabInfo = tabMappings[value];
-    if (tabInfo) {
-      trackVirtualPageView(tabInfo.path, tabInfo.title);
-    }
-  };
-
-  // Handle theme toggle tracking
-  const handleThemeToggle = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    
-    // Track theme toggle event
-    trackCustomEvent('theme_toggle', {
-      previous_theme: theme,
-      new_theme: newTheme,
-      device_type: isMobile ? 'mobile' : 'desktop'
-    });
-  };
+export default function OverviewPage() {
+  const stats = universeStats()
+  const view = screen({
+    q: "",
+    category: "",
+    minAum: null,
+    minYield: null,
+    maxExpenseRatio: null,
+    feesOnly: false,
+    sort: "aum",
+    dir: "desc",
+    page: 1,
+    perPage: 1,
+  })
+  const categories = categoryPerformance(10)
+  const concentration = issuerConcentration(10)
+  const weighted3y = weightedReturns("ret3y")
+  const thin = thinlyTraded()
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-4 sm:p-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">ETF Analytics Dashboard</h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">Comprehensive ETF performance and market analysis</p>
-          </div>
-          <div className="flex justify-end">
-            <Button variant="outline" size="icon" onClick={handleThemeToggle}>
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </div>
+    <main className="mx-auto max-w-7xl px-6 py-8">
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          The shape of the US-listed ETF market, and where to start narrowing it down.
+        </p>
+      </header>
+
+      <SnapshotBanner />
+
+      <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard label="ETFs tracked" value={num(stats.total)} note={`${num(stats.investable)} investable`} />
+        <StatCard label="Combined assets" value={money(stats.totalAum)} />
+        <StatCard label="Issuers" value={num(stats.issuers)} note={`${stats.categories} categories`} />
+        <StatCard
+          label="Median 3Y return"
+          value={pct(stats.medianRet3y, 1)}
+          note={`5Y ${pct(stats.medianRet5y, 1)} · median yield ${pct(stats.medianYield, 2)}`}
+        />
+      </section>
+
+      <p className="mb-6 text-xs leading-relaxed text-slate-500">
+        Medians rather than means, and leveraged and inverse funds excluded: a handful of 3x
+        products have returns extreme enough to drag an average into meaninglessness.
+      </p>
+
+      {/* Three things a fund-count summary hides. */}
+      <section className="mb-6 grid gap-4 lg:grid-cols-3">
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="text-sm font-medium text-slate-700">The market is concentrated</h2>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">
+            {(concentration.topShare * 100).toFixed(0)}%
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">
+            of all assets sit with the 10 largest issuers, out of {num(concentration.issuers)}{" "}
+            in total. A count of {num(stats.total)} funds makes the market look more competitive
+            than it is.
+          </p>
+          <ul className="mt-3 space-y-1 text-xs">
+            {concentration.top.slice(0, 5).map((r) => (
+              <li key={r.issuer} className="flex justify-between gap-3">
+                <span className="truncate text-slate-700">{r.issuer}</span>
+                <span className="shrink-0 tabular-nums text-slate-500">
+                  {money(r.aum)} · {r.funds} funds
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Main Dashboard */}
-        <Tabs defaultValue="real-time" className="space-y-4 sm:space-y-6" onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-5 gap-1 sm:gap-2 overflow-x-auto">
-            <TabsTrigger value="real-time" className="flex items-center justify-center sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-0 sm:py-0">
-              <Zap className="h-5 w-5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Real Time</span>
-            </TabsTrigger>
-            <TabsTrigger value="overview" className="flex items-center justify-center sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-0 sm:py-0">
-              <TrendingUp className="h-5 w-5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="news-sentiment" className="flex items-center justify-center sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-0 sm:py-0">
-              <Newspaper className="h-5 w-5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">News Sentiment</span>
-            </TabsTrigger>
-            <TabsTrigger value="top-performers" className="flex items-center justify-center sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-0 sm:py-0">
-              <BarChart3 className="h-5 w-5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Top Performers</span>
-            </TabsTrigger>
-            <TabsTrigger value="category-performance" className="flex items-center justify-center sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-0 sm:py-0">
-              <Grid3X3 className="h-5 w-5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Category Performance</span>
-            </TabsTrigger>
-          </TabsList>
+        {weighted3y && (
+          <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="text-sm font-medium text-slate-700">
+              The median fund is not the median dollar
+            </h2>
+            <p className="mt-2 text-3xl font-semibold tabular-nums">
+              {weighted3y.gap >= 0 ? "+" : ""}
+              {(weighted3y.gap * 100).toFixed(2)}pp
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-600">
+              Asset-weighted 3Y return is{" "}
+              <span className="font-medium text-slate-900">
+                {(weighted3y.weighted * 100).toFixed(2)}%
+              </span>{" "}
+              against{" "}
+              <span className="font-medium text-slate-900">
+                {(weighted3y.equal * 100).toFixed(2)}%
+              </span>{" "}
+              equal-weighted. Equal-weighted treats a $2M fund the same as a $500B one;
+              asset-weighted reflects what investors actually held.
+            </p>
+          </div>
+        )}
 
-          <TabsContent value="real-time">
-            <RealTimeTab />
-          </TabsContent>
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="text-sm font-medium text-slate-700">Most funds are not really tradeable</h2>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">
+            {(thin.share * 100).toFixed(0)}%
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">
+            of funds hold under $50M or trade fewer than 10,000 shares a day, so the bid-ask
+            spread is likely to cost more than the expense ratio. Screeners sorted by return
+            routinely surface funds nobody can buy cheaply, which is why they are excluded from
+            the rankings here.
+          </p>
+        </div>
+      </section>
 
-          <TabsContent value="overview">
-            <OverviewTab />
-          </TabsContent>
+      <section className="mb-6 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="mb-3 text-sm font-medium text-slate-700">Largest categories by fund count</h2>
+          <CategoryMixChart data={view.categoryMix} />
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="mb-3 text-sm font-medium text-slate-700">Distribution of dividend yields</h2>
+          <YieldHistogram data={view.yieldBuckets} />
+        </div>
+      </section>
 
-          <TabsContent value="news-sentiment">
-            <NewsSentimentTab />
-          </TabsContent>
+      <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-sm font-medium text-slate-700">
+            Category performance, median 3Y vs 5Y
+          </h2>
+          <Link href="/categories" className="text-xs text-slate-500 underline underline-offset-2">
+            All categories
+          </Link>
+        </div>
+        <CategoryPerformanceChart
+          data={categories.map((c) => ({
+            category: c.category,
+            ret3y: (c.ret3y ?? 0) * 100,
+            ret5y: (c.ret5y ?? 0) * 100,
+          }))}
+        />
+      </section>
 
-          <TabsContent value="top-performers">
-            <TopPerformersTab />
-          </TabsContent>
-
-          <TabsContent value="category-performance">
-            <CategoryPerformanceTab />
-          </TabsContent>
-        </Tabs>
-      </div>
-      <GTMDebug />
-    </div>
+      <section className="grid gap-3 sm:grid-cols-3">
+        {[
+          { href: "/screener", title: "Screener", body: "Filter 4,148 funds by category, assets and yield." },
+          { href: "/risk-return", title: "Risk & return", body: "Which funds delivered consistently, and which had one good run." },
+          { href: "/performers", title: "Top performers", body: "Leaders by 3Y, 5Y and yield, with the caveats." },
+        ].map((c) => (
+          <Link
+            key={c.href}
+            href={c.href}
+            className="rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-slate-400"
+          >
+            <div className="text-sm font-medium">{c.title}</div>
+            <div className="mt-1 text-xs text-slate-600">{c.body}</div>
+          </Link>
+        ))}
+      </section>
+    </main>
   )
 }

@@ -16,8 +16,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
+# env files — .env.example is intentionally tracked
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -26,12 +27,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Google Cloud service account credentials
-analytics/gen-lang-client-0301679764-5b6ce0c22aec.json
-gen-lang-client-0301679764-5b6ce0c22aec.json
-*.json
-!package.json
-!package-lock.json
-!tsconfig.json
-!components.json
+# credentials — service-account keys must never be committed
+*-service-account*.json
+gen-lang-client-*.json
+**/gen-lang-client-*.json
 
+# test / coverage output
+/coverage
+/test-results
+/playwright-report
