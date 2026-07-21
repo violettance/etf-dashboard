@@ -1,0 +1,15 @@
+{
+  "name": "etf-dashboard-analytics-scripts",
+  "private": true,
+  "description": "One-off Node scripts for GA4/GTM configuration. Kept out of the Next.js dependency tree so the Google client libraries never reach the browser bundle.",
+  "scripts": {
+    "configure:ga4": "node configuration/configure_ga4.js",
+    "configure:gtm": "node configuration/configure_gtm.js"
+  },
+  "dependencies": {
+    "@google-analytics/admin": "^8.2.0",
+    "@google-analytics/data": "^5.1.0",
+    "google-auth-library": "^10.0.0-rc.2",
+    "googleapis": "^149.0.0"
+  }
+}
