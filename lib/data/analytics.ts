@@ -23,13 +23,55 @@ function investable(e: DirectoryEntry): boolean {
   )
 }
 
-export function topPerformers(key: "ret3y" | "ret5y" | "yield", limit = 15) {
-  return DIRECTORY.filter((e) => investable(e) && e[key] !== null)
+export type PerformerSortKey =
+  | "symbol"
+  | "name"
+  | "category"
+  | "aum"
+  | "ret3y"
+  | "ret5y"
+  | "yield"
+  | "expenseRatio"
+
+/**
+ * Leaders by `key`, optionally re-sorted by another column.
+ *
+ * The leaderboard is always selected on `key` first, so re-sorting rearranges
+ * the same set rather than silently swapping in a different one. Sorting by
+ * fee should not turn a 3-year leaderboard into a fee leaderboard.
+ */
+export function topPerformers(
+  key: "ret3y" | "ret5y" | "yield",
+  limit = 15,
+  sort?: { by: PerformerSortKey; dir: "asc" | "desc" }
+) {
+  const selected = DIRECTORY.filter((e) => investable(e) && e[key] !== null)
     .sort((a, b) => (b[key] ?? 0) - (a[key] ?? 0))
     .slice(0, limit)
+
+  if (!sort) return selected
+
+  const numeric = new Set<PerformerSortKey>(["aum", "ret3y", "ret5y", "yield", "expenseRatio"])
+  return [...selected].sort((a, b) => {
+    if (numeric.has(sort.by)) {
+      const av = a[sort.by] as number | null
+      const bv = b[sort.by] as number | null
+      if (av === null && bv === null) return a.symbol.localeCompare(b.symbol)
+      if (av === null) return 1
+      if (bv === null) return -1
+      return sort.dir === "asc" ? av - bv : bv - av
+    }
+    const cmp = String(a[sort.by]).localeCompare(String(b[sort.by]))
+    return sort.dir === "asc" ? cmp : -cmp
+  })
 }
 
-export function categoryPerformance(limit = 14) {
+export type CategorySortKey = "category" | "count" | "aum" | "ret3y" | "ret5y"
+
+export function categoryPerformance(
+  limit = 14,
+  sort?: { by: CategorySortKey; dir: "asc" | "desc" }
+) {
   const groups = new Map<string, DirectoryEntry[]>()
   for (const e of DIRECTORY) {
     if (!investable(e) || e.category === "Uncategorised") continue
@@ -38,7 +80,7 @@ export function categoryPerformance(limit = 14) {
     else groups.set(e.category, [e])
   }
 
-  return Array.from(groups.entries())
+  const ranked = Array.from(groups.entries())
     .filter(([, list]) => list.length >= 5)
     .map(([category, list]) => ({
       category,
@@ -50,6 +92,22 @@ export function categoryPerformance(limit = 14) {
     .filter((r) => r.ret3y !== null)
     .sort((a, b) => (b.ret3y ?? 0) - (a.ret3y ?? 0))
     .slice(0, limit)
+
+  if (!sort) return ranked
+
+  const numeric = new Set<CategorySortKey>(["count", "aum", "ret3y", "ret5y"])
+  return [...ranked].sort((a, b) => {
+    if (numeric.has(sort.by)) {
+      const av = a[sort.by] as number | null
+      const bv = b[sort.by] as number | null
+      if (av === null && bv === null) return a.category.localeCompare(b.category)
+      if (av === null) return 1
+      if (bv === null) return -1
+      return sort.dir === "asc" ? av - bv : bv - av
+    }
+    const cmp = a.category.localeCompare(b.category)
+    return sort.dir === "asc" ? cmp : -cmp
+  })
 }
 
 /**

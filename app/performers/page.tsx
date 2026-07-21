@@ -1,7 +1,8 @@
 import Link from "next/link"
-import { topPerformers } from "@/lib/data/analytics"
+import { topPerformers, type PerformerSortKey } from "@/lib/data/analytics"
 import { money, pct } from "@/lib/format"
 import { SnapshotBanner } from "@/components/v2/snapshot-banner"
+import { SortableHeader } from "@/components/v2/sortable-header"
 import { TopPerformersChart } from "@/components/v2/analytics-charts"
 
 export const dynamic = "force-static"
@@ -20,7 +21,28 @@ export default async function PerformersPage({
   const sp = await searchParams
   const raw = Array.isArray(sp.by) ? sp.by[0] : sp.by
   const by = (TABS.find((t) => t.key === raw)?.key ?? "ret3y") as "ret3y" | "ret5y" | "yield"
-  const rows = topPerformers(by, 15)
+
+  const SORTABLE: PerformerSortKey[] = [
+    "symbol",
+    "name",
+    "category",
+    "expenseRatio",
+    "aum",
+    "ret3y",
+    "ret5y",
+    "yield",
+  ]
+  const one = (k: string) => {
+    const v = sp[k]
+    return Array.isArray(v) ? (v[0] ?? "") : (v ?? "")
+  }
+  const rawSort = one("sort")
+  const sortBy = (SORTABLE as string[]).includes(rawSort) ? (rawSort as PerformerSortKey) : by
+  const dir = one("dir") === "asc" ? "asc" : "desc"
+
+  // The chart always shows the leaderboard measure; only the table re-sorts.
+  const chartRows = topPerformers(by, 15)
+  const rows = topPerformers(by, 15, { by: sortBy, dir })
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
@@ -52,7 +74,7 @@ export default async function PerformersPage({
 
       <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
         <TopPerformersChart
-          data={rows.map((r) => ({
+          data={chartRows.map((r) => ({
             symbol: r.symbol,
             name: r.name,
             value: (r[by] ?? 0) * 100,
@@ -64,13 +86,30 @@ export default async function PerformersPage({
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left">
             <tr>
-              <th scope="col" className="px-4 py-3 font-medium text-slate-600">Symbol</th>
-              <th scope="col" className="px-4 py-3 font-medium text-slate-600">Name</th>
-              <th scope="col" className="px-4 py-3 font-medium text-slate-600">Category</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">Assets</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">3Y</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">5Y</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">Yield</th>
+              {(
+                [
+                  ["symbol", "Symbol", false],
+                  ["name", "Name", false],
+                  ["category", "Category", false],
+                  ["expenseRatio", "Fee", true],
+                  ["aum", "Assets", true],
+                  ["ret3y", "3Y", true],
+                  ["ret5y", "5Y", true],
+                  ["yield", "Yield", true],
+                ] as const
+              ).map(([key, label, numeric]) => (
+                <SortableHeader
+                  key={key}
+                  label={label}
+                  sortKey={key}
+                  activeKey={sortBy}
+                  direction={dir}
+                  basePath="/performers"
+                  params={{ by }}
+                  numeric={numeric}
+                  defaultDirection={key === "expenseRatio" ? "asc" : undefined}
+                />
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -81,6 +120,13 @@ export default async function PerformersPage({
                 </td>
                 <td className="max-w-[300px] truncate px-4 py-2.5 text-slate-700" title={r.name}>{r.name}</td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">{r.category}</td>
+                <td className="px-4 py-2.5 text-right tabular-nums">
+                  {r.expenseRatio === null ? (
+                    <span className="text-slate-300">n/a</span>
+                  ) : (
+                    `${(r.expenseRatio * 100).toFixed(3)}%`
+                  )}
+                </td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{money(r.aum)}</td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{pct(r.ret3y, 1)}</td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{pct(r.ret5y, 1)}</td>
@@ -92,6 +138,9 @@ export default async function PerformersPage({
       </div>
 
       <p className="mt-6 border-t border-slate-200 pt-6 text-xs leading-relaxed text-slate-500">
+        Sorting rearranges this leaderboard; it does not rebuild it. Sorting by fee shows the
+        cheapest of the 3-year leaders, not the cheapest funds overall, which is what the{" "}
+        <Link href="/screener" className="underline underline-offset-2">screener</Link> is for.
         A high trailing return is a description of the past, not a prediction. Compare the 3Y and
         5Y columns: a fund leading on one but not the other had a single strong period rather than
         a durable pattern, the <Link href="/risk-return" className="underline underline-offset-2">risk &amp; return</Link>{" "}

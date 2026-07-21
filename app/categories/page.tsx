@@ -1,12 +1,32 @@
-import { categoryPerformance } from "@/lib/data/analytics"
+import { categoryPerformance, type CategorySortKey } from "@/lib/data/analytics"
 import { money, num, pct } from "@/lib/format"
 import { SnapshotBanner } from "@/components/v2/snapshot-banner"
+import { SortableHeader } from "@/components/v2/sortable-header"
 import { CategoryPerformanceChart } from "@/components/v2/analytics-charts"
 
-export const dynamic = "force-static"
+export const dynamic = "force-dynamic"
 
-export default function CategoriesPage() {
-  const rows = categoryPerformance(20)
+const SORTABLE: CategorySortKey[] = ["category", "count", "aum", "ret3y", "ret5y"]
+
+export default async function CategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const sp = await searchParams
+  const one = (k: string) => {
+    const v = sp[k]
+    return Array.isArray(v) ? (v[0] ?? "") : (v ?? "")
+  }
+  const rawSort = one("sort")
+  const sortBy = (SORTABLE as string[]).includes(rawSort)
+    ? (rawSort as CategorySortKey)
+    : "ret3y"
+  const dir = one("dir") === "asc" ? "asc" : "desc"
+
+  // The chart keeps its own ordering so re-sorting the table does not reshuffle it.
+  const chartRows = categoryPerformance(20)
+  const rows = categoryPerformance(20, { by: sortBy, dir })
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
@@ -30,7 +50,7 @@ export default function CategoriesPage() {
           </span>
         </div>
         <CategoryPerformanceChart
-          data={rows.map((r) => ({
+          data={chartRows.map((r) => ({
             category: r.category,
             ret3y: (r.ret3y ?? 0) * 100,
             ret5y: (r.ret5y ?? 0) * 100,
@@ -42,11 +62,25 @@ export default function CategoriesPage() {
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left">
             <tr>
-              <th scope="col" className="px-4 py-3 font-medium text-slate-600">Category</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">Funds</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">Assets</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">Median 3Y</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">Median 5Y</th>
+              {(
+                [
+                  ["category", "Category", false],
+                  ["count", "Funds", true],
+                  ["aum", "Assets", true],
+                  ["ret3y", "Median 3Y", true],
+                  ["ret5y", "Median 5Y", true],
+                ] as const
+              ).map(([key, label, numeric]) => (
+                <SortableHeader
+                  key={key}
+                  label={label}
+                  sortKey={key}
+                  activeKey={sortBy}
+                  direction={dir}
+                  basePath="/categories"
+                  numeric={numeric}
+                />
+              ))}
             </tr>
           </thead>
           <tbody>

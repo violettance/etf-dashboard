@@ -10,6 +10,7 @@ import {
 } from "@/lib/data/directory"
 import { CategoryMixChart, YieldHistogram } from "@/components/v2/snapshot-charts"
 import { SnapshotBanner } from "@/components/v2/snapshot-banner"
+import { SortableHeader } from "@/components/v2/sortable-header"
 
 export const dynamic = "force-dynamic"
 
@@ -253,30 +254,29 @@ export default async function DashboardPage({
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left">
             <tr>
-              {COLUMNS.map((col) => {
-                const active = query.sort === col.key
-                return (
-                  <th
-                    key={col.key}
-                    scope="col"
-                    className={`whitespace-nowrap px-4 py-3 font-medium text-slate-600 ${col.numeric ? "text-right" : ""}`}
-                  >
-                    <Link
-                      href={href(query, {
-                        sort: col.key,
-                        dir: active && query.dir === "desc" ? "asc" : "desc",
-                        page: 1,
-                      })}
-                      className="inline-flex items-center gap-1 hover:text-slate-900"
-                    >
-                      {col.label}
-                      <span aria-hidden className={active ? "" : "opacity-0"}>
-                        {query.dir === "desc" ? "↓" : "↑"}
-                      </span>
-                    </Link>
-                  </th>
-                )
-              })}
+              {COLUMNS.map((col) => (
+                <SortableHeader
+                  key={col.key}
+                  label={col.label}
+                  sortKey={col.key}
+                  activeKey={query.sort}
+                  direction={query.dir}
+                  basePath="/screener"
+                  numeric={col.numeric}
+                  defaultDirection={col.key === "expenseRatio" ? "asc" : undefined}
+                  params={{
+                    q: query.q,
+                    category: query.category,
+                    minAum: query.minAum === null ? undefined : String(query.minAum),
+                    minYield: query.minYield === null ? undefined : String(query.minYield * 100),
+                    maxExpenseRatio:
+                      query.maxExpenseRatio === null
+                        ? undefined
+                        : String(query.maxExpenseRatio * 100),
+                    feesOnly: query.feesOnly ? "1" : undefined,
+                  }}
+                />
+              ))}
             </tr>
           </thead>
           <tbody>

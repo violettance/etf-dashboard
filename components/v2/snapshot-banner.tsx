@@ -1,47 +1,58 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { X } from "lucide-react"
 import { SNAPSHOT_DATE, SNAPSHOT_SOURCE, snapshotAgeMonths } from "@/lib/data/directory"
 
 const DISMISS_KEY = "snapshot-banner-dismissed"
 
 /**
- * Data provenance, stated before any figure is read rather than in a footnote.
- * The previous version of this dashboard displayed the same snapshot with no
- * indication of when it was captured.
+ * Dismissal is external state (sessionStorage), so it is read through
+ * useSyncExternalStore rather than mirrored into useState from an effect.
+ * That keeps the server and hydration snapshots explicit: the server always
+ * renders the banner open, and the client swaps to the stored value on
+ * hydration without a mismatch.
  *
- * Dismissal is kept in sessionStorage rather than localStorage: the reminder
- * should come back on the next visit, because the point of the banner is that
- * these figures are not current.
+ * sessionStorage, not localStorage, on purpose. The reminder should return on
+ * the next visit, because the point of the notice is that these figures are
+ * not current.
  */
+const listeners = new Set<() => void>()
+
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+function getSnapshot(): boolean {
+  try {
+    return window.sessionStorage.getItem(DISMISS_KEY) === "1"
+  } catch {
+    // Private browsing or storage disabled: keep the banner visible.
+    return false
+  }
+}
+
+/** The server has no session, so the banner always renders open there. */
+function getServerSnapshot(): boolean {
+  return false
+}
+
+function dismiss() {
+  try {
+    window.sessionStorage.setItem(DISMISS_KEY, "1")
+  } catch {
+    // Non-fatal.
+  }
+  for (const listener of listeners) listener()
+}
+
 export function SnapshotBanner({ note }: { note?: string }) {
-  // Render open on the server and on first paint so the markup matches, then
-  // hide after mount if this session already dismissed it.
-  const [dismissed, setDismissed] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const dismissed = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  useEffect(() => {
-    setMounted(true)
-    try {
-      if (window.sessionStorage.getItem(DISMISS_KEY) === "1") setDismissed(true)
-    } catch {
-      // Private browsing or storage disabled: leave the banner visible.
-    }
-  }, [])
-
-  if (mounted && dismissed) return null
+  if (dismissed) return null
 
   const months = snapshotAgeMonths()
-
-  const dismiss = () => {
-    setDismissed(true)
-    try {
-      window.sessionStorage.setItem(DISMISS_KEY, "1")
-    } catch {
-      // Non-fatal: the banner still closes for this page view.
-    }
-  }
 
   return (
     <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm">
