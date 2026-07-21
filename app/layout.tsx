@@ -1,59 +1,29 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type { Metadata } from "next"
+import Link from "next/link"
+import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import Script from 'next/script'
 
 export const metadata: Metadata = {
-  title: 'ETF Analytics Dashboard',
-  description: 'Comprehensive ETF performance and market analysis',
+  title: "Which ETF? — data-driven fund selection",
+  description:
+    "Rank ETFs against a stated investment goal, with the reasoning behind every ranking.",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  // Get GTM Container ID from environment variables
-  const GTM_CONTAINER_ID = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID;
-
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Initialize dataLayer before any GTM scripts */}
-        <Script
-          id="gtm-datalayer"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-            `,
-          }}
-        />
-      </head>
-      <body>
-        {/* Google Tag Manager */}
-        {GTM_CONTAINER_ID && (
-          <>
-            <Script
-              id="gtm-script"
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtm.js?id=${GTM_CONTAINER_ID}`}
-            />
-            {/* Google Tag Manager (noscript) */}
-            <noscript>
-              <iframe 
-                src={`https://www.googletagmanager.com/ns.html?id=${GTM_CONTAINER_ID}`}
-                height="0" 
-                width="0" 
-                style={{display: 'none', visibility: 'hidden'}}
-              />
-            </noscript>
-          </>
-        )}
-        
+      <body className="min-h-screen bg-background antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="border-b">
+            <nav className="mx-auto flex max-w-4xl items-center gap-6 px-6 py-4 text-sm">
+              <Link href="/" className="font-medium">
+                Which ETF?
+              </Link>
+              <Link href="/methodology" className="text-muted-foreground hover:text-foreground">
+                Methodology
+              </Link>
+            </nav>
+          </div>
           {children}
         </ThemeProvider>
       </body>

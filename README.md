@@ -1,120 +1,142 @@
-# ETF Analytics Dashboard
+# Which ETF?
 
-A modern, interactive dashboard for analyzing Exchange-Traded Funds (ETFs) performance, market trends, and sentiment analysis. Built with Next.js, TypeScript, and Tailwind CSS, this dashboard provides comprehensive insights into the ETF market with a focus on professional UX, mobile responsiveness, and dark mode support.
+A tool for comparing US-listed ETFs on the things that actually differ between
+them — cost, risk, liquidity and track record — with the numbers behind every
+figure shown in full.
 
-![ETF Dashboard Screenshot](image.png)
+It does not recommend funds. It lines comparable funds up side by side and
+shows its working, so the conclusion is yours to draw.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Dashboard-blue?style=for-the-badge)](https://v0-data-dashboard-design-iota.vercel.app/)
+**Runs with zero API keys.** Price data comes from sources that require no
+credentials.
 
-## Features
+---
 
-### Overview
-- Total ETF Trading Volume tracking
-- Median 3-Year and 5-Year Returns analysis (with outlier filtering)
-- Dividend Yield Distribution visualization (responsive, readable bins)
-- Trailing P/E Ratio Distribution analysis
+## Why it works this way
 
-### News Sentiment Analysis
-- Topic-based sentiment analysis with real-time news
-- Individual ETF sentiment tracking
-- Real-time sentiment scoring (-1 to +1)
-- Visual sentiment indicators and badges
-- Caching and rate limit handling for API usage
+Most ETF dashboards, including the first version of this one, chart the
+distribution of the whole ETF universe: median three-year returns, dividend
+yield histograms, category averages. Those charts are accurate and useless —
+nobody makes a decision with the median five-year return of 4,000 funds.
 
-### Real-Time Data
-- Live ETF price tracking (via Twelve Data API)
-- Daily price changes and percentage movements
-- 45-day historical price charts
-- Searchable ETF selection
-- Local storage caching for performance
+The problem people actually have is narrower: *these six funds look identical,
+which one do I buy?* That question has a real answer, and it is usually about
+cost and structure rather than performance. This tool is built around that
+question.
 
-### Top Performers
-- Top 20 ETFs by 3-Year Returns, 5-Year Returns, and Dividend Yields
-- Interactive, category-filtered performance charts
+### Curation is the product
 
-### Category Performance
-- Sector-wise performance analysis
-- Category-based asset distribution
-- 3-Year and 5-Year category returns
-- Combined performance metrics
-- Responsive chart layouts and dropdowns
+The universe is ~40 funds, not ~4,000. Most US-listed ETFs are leveraged,
+thematic, or too small to trade cheaply, and nobody chooses among four thousand
+options. Narrowing the field to genuinely comparable funds is the point.
 
-### User Experience & Design
-- **Mobile Responsive:** All layouts, charts, and controls adapt to mobile screens. Tab bar uses only icons on mobile, dropdowns are repositioned for clarity, and chart labels are optimized for readability.
-- **Dark Mode:** Seamless dark/light theme switching with persistent user preference.
-- **Professional UI:** Built with shadcn/ui and Tailwind CSS for a modern, accessible, and consistent look.
-- **Performance:** Local storage caching for API data, optimized rendering, and error handling.
+The list lives in [`lib/data/universe.ts`](lib/data/universe.ts) and is
+versioned in git, so every change to it is visible in the history.
 
-## Data Sources
+### Reference data vs market data
 
-- **ETF Data:** Yahoo Finance (yfinance, local CSV)
-- **Real-time Data:** Twelve Data API
-- **News Sentiment:** Alpha Vantage API
+Expense ratios and inception dates are *reference* data: set by the issuer,
+changing roughly once a year. They are recorded in source with the date each
+figure was verified and a link to the issuer's own page.
 
-## Dataset Information
+Everything that genuinely moves — price, volume, volatility, drawdown — is
+fetched live and never hardcoded.
 
-The dashboard analyzes data from 4,148 ETFs, including the following key metrics:
+### Missing data is shown, not guessed
 
-- Symbol and Long Name
-- Category and Fund Family
-- Total Assets and Net Assets
-- Market Cap and Volume
-- Average Volume
-- Price Metrics (NAV, Previous Close, Open)
-- Performance Metrics (3-Year and 5-Year Average Returns)
-- Valuation Metrics (Trailing PE, Forward PE)
-- Dividend Information (Yield, Last Dividend Value)
+When a dimension has no data it is excluded from the total and the remaining
+weight is rescaled, so a fund is never penalised for a missing figure. The
+coverage percentage is displayed alongside, so you can see how much of a score
+is actually evidenced. A fund with no data should not look like a fund with bad
+data.
 
-## Tech Stack
+---
 
-- **Frontend Framework:** Next.js 14
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Charts:** Recharts
-- **UI Components:** shadcn/ui
-- **State Management:** React Hooks
-- **Data Fetching:** Native Fetch API
-- **Data Collection:** Python (yfinance, pandas)
+## Architecture
 
-## Getting Started
+```
+app/
+  page.tsx                  Goal selection
+  compare/[goalId]/         Side-by-side comparison, sorted by your weightings
+  methodology/              How every number is derived
+  api/
+    quote/[symbol]/         Live quote proxy      (keeps API keys server-side)
+    history/[symbol]/       Daily price history   (Stooq, no key required)
+lib/
+  config/env.ts             Zod-validated server env; throws if imported client-side
+  cache.ts                  TTL cache with stale-on-error semantics
+  providers/                One module per data source, behind a shared interface
+  data/                     Curated universe, goals and weightings
+  scoring/                  Pure metric and scoring functions (unit tested)
+```
 
-1. Clone the repository:
+### Data sources
+
+| Source | Used for | Key required |
+|---|---|---|
+| Stooq | Daily closes, volume, volatility, drawdown | No |
+| Issuer reference data | Expense ratios, inception dates | No |
+| SEC EDGAR N-PORT | Holdings concentration *(planned)* | No |
+| Twelve Data | Live intraday quotes *(optional upgrade)* | Yes |
+| Financial Modeling Prep | Automated expense-ratio refresh *(optional)* | Yes |
+
+The two optional providers are exactly that — the app is fully functional
+without them.
+
+---
+
+## Getting started
+
 ```bash
-git clone https://github.com/yourusername/etf-dashboard.git
+git clone https://github.com/violettance/etf-dashboard.git
+cd etf-dashboard
+npm install
+npm run dev
 ```
 
-2. Install dependencies:
+Open <http://localhost:3000>. No `.env.local` is needed.
+
+To enable the optional providers, copy `.env.example` to `.env.local` and fill
+in the keys you have. Note that none of them are prefixed `NEXT_PUBLIC_`: they
+are read only on the server, and `lib/config/env.ts` throws if it is imported
+from client code.
+
+### Scripts
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest (watch) |
+| `npm test -- --run` | Vitest (once) |
+
+---
+
+## Testing
+
+The scoring engine is written as pure functions specifically so it can be
+tested against known values rather than snapshots:
+
+- sample vs population standard deviation
+- beta of a 2× levered series against its benchmark
+- correlation of a perfectly inverse series
+- maximum drawdown measured from the running peak, not the starting value
+- funds not being penalised for a missing field that carries zero weight
+
 ```bash
-pnpm install
+npm test -- --run
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env.local
-```
-Add your API keys to `.env.local`:
-```
-NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
-NEXT_PUBLIC_TWELVE_DATA_API_KEY=your_twelve_data_api_key_here
-```
+---
 
-4. Run the development server:
-```bash
-pnpm dev
-```
+## Not investment advice
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## API Keys Required
-
-- Alpha Vantage API key for news sentiment analysis
-- Twelve Data API key for real-time price data
-- Yahoo Finance API (no key required for local CSV)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request for improvements, bug fixes, or new features.
+This tool presents published fund data for comparison. It does not know your
+circumstances, tax position or time horizon, and it does not recommend any
+fund. Past performance does not predict future results.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT — see [LICENSE](LICENSE).
