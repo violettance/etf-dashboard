@@ -14,7 +14,9 @@ import CategoryPerformanceTab from "@/components/category-performance-tab"
 import GTMDebug from "@/components/gtm-debug"
 
 export default function ETFDashboard() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  // Reading window.innerWidth during render causes a server/client hydration
+  // mismatch. useIsMobile resolves after mount via matchMedia instead.
+  const isMobile = useIsMobile()
   const { theme, setTheme } = useTheme()
 
   // Set user properties on component mount
@@ -124,7 +126,7 @@ export default function ETFDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-      <GTMDebug />
+      {process.env.NODE_ENV === "development" && <GTMDebug />}
     </div>
   )
 }

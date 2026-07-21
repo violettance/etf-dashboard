@@ -5,6 +5,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { Line, LineChart, XAxis, YAxis, CartesianGrid } from "recharts"
 import { TrendingUp, TrendingDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { trackSearchPerformed, trackChartInteraction } from "@/lib/gtm"
 
@@ -124,7 +125,7 @@ export default function RealTimeTab() {
           onChange={e => setInput(e.target.value)}
           className="w-[200px]"
         />
-        <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-blue-700 font-semibold text-sm">Search</button>
+        <Button type="submit">Search</Button>
       </form>
 
       {loading ? (
