@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { DIRECTORY, SNAPSHOT_DATE } from "@/lib/data/directory"
+import { DIRECTORY, EXPENSE_RATIO_AS_OF, SNAPSHOT_DATE, sameIndexPeers } from "@/lib/data/directory"
 import { cached } from "@/lib/cache"
 import { stooqHistory } from "@/lib/providers/stooq"
 import {
   annualisedVolatility,
   cagr,
+  cumulativeFeeDrag,
   dailyReturns,
   maxDrawdown,
   sharpeRatio,
@@ -63,6 +64,8 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
     error = e instanceof Error ? e.message : "Price history unavailable"
   }
 
+  const indexPeers = sameIndexPeers(entry.symbol)
+
   const peers = DIRECTORY.filter(
     (e) => e.category === entry.category && e.symbol !== entry.symbol
   )
@@ -119,6 +122,50 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
             Live daily closes, {live.from} to {live.to}. Sharpe {live.sharpe.toFixed(2)}.
           </p>
         </>
+      )}
+
+      {entry.expenseRatio !== null && (
+        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="text-sm font-medium text-slate-700">Cost</h2>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-6 gap-y-1">
+            <span className="text-3xl font-semibold tabular-nums">
+              {(entry.expenseRatio * 100).toFixed(3)}%
+            </span>
+            <span className="text-sm text-slate-600">
+              costs about{" "}
+              <span className="font-medium text-slate-900 tabular-nums">
+                ${Math.round(10000 * cumulativeFeeDrag(entry.expenseRatio, 20)).toLocaleString("en-US")}
+              </span>{" "}
+              on a $10,000 balance held for 20 years
+            </span>
+          </div>
+          {indexPeers.length > 0 && (
+            <p className="mt-3 border-t border-slate-100 pt-3 text-sm text-slate-600">
+              Tracks the same index as{" "}
+              {indexPeers.map((p, i) => (
+                <span key={p.symbol}>
+                  {i > 0 && ", "}
+                  <Link href={`/etf/${p.symbol}`} className="font-mono hover:underline">
+                    {p.symbol}
+                  </Link>
+                  {p.expenseRatio !== null && (
+                    <span className="text-slate-500"> ({(p.expenseRatio * 100).toFixed(3)}%)</span>
+                  )}
+                </span>
+              ))}
+              . Same portfolio, so cost is the difference.{" "}
+              <Link
+                href={`/compare?symbols=${[entry.symbol, ...indexPeers.map((p) => p.symbol)].join(",")}`}
+                className="underline underline-offset-2"
+              >
+                Compare them
+              </Link>
+            </p>
+          )}
+          <p className="mt-2 text-xs text-slate-500">
+            Issuer-published, verified {EXPENSE_RATIO_AS_OF}.
+          </p>
+        </section>
       )}
 
       <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">

@@ -22,6 +22,8 @@ export default function OverviewPage() {
     category: "",
     minAum: null,
     minYield: null,
+    maxExpenseRatio: null,
+    feesOnly: false,
     sort: "aum",
     dir: "desc",
     page: 1,

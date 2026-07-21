@@ -25,15 +25,37 @@ export type DirectoryEntry = {
   ret5y: number | null
   avgVolume: number | null
   pe: number | null
+  /**
+   * Annual expense ratio as a fraction, e.g. 0.0003 for 0.03%.
+   *
+   * Null for most funds. The snapshot source does not carry expense ratios, so
+   * these are issuer-published figures verified by hand for the funds people
+   * most often compare. A null is shown as "not verified" rather than being
+   * filled with an estimate: a wrong fee is worse than a missing one, because
+   * fees are the variable this decision usually turns on.
+   */
+  expenseRatio: number | null
+  inceptionDate: string | null
+  /** Index the fund tracks, used to find funds holding the same portfolio. */
+  tracks: string | null
+  sourceUrl: string | null
 }
 
-type Snapshot = { capturedAt: string; source: string; rows: DirectoryEntry[] }
+type Snapshot = {
+  capturedAt: string
+  source: string
+  expenseRatioAsOf: string
+  expenseRatioNote: string
+  rows: DirectoryEntry[]
+}
 
 const data = snapshot as Snapshot
 
 export const DIRECTORY = data.rows
 export const SNAPSHOT_DATE = data.capturedAt
 export const SNAPSHOT_SOURCE = data.source
+export const EXPENSE_RATIO_AS_OF = data.expenseRatioAsOf
+export const VERIFIED_FEE_COUNT = DIRECTORY.filter((e) => e.expenseRatio !== null).length
 
 /** How old the snapshot is, in whole months, for the staleness banner. */
 export function snapshotAgeMonths(now = new Date()): number {
@@ -56,6 +78,7 @@ export const SORT_KEYS = [
   "ret3y",
   "ret5y",
   "avgVolume",
+  "expenseRatio",
 ] as const
 
 export type SortKey = (typeof SORT_KEYS)[number]
@@ -65,13 +88,22 @@ export type ScreenerQuery = {
   category: string
   minAum: number | null
   minYield: number | null
+  maxExpenseRatio: number | null
+  feesOnly: boolean
   sort: SortKey
   dir: "asc" | "desc"
   page: number
   perPage: number
 }
 
-const NUMERIC_KEYS = new Set<SortKey>(["aum", "yield", "ret3y", "ret5y", "avgVolume"])
+const NUMERIC_KEYS = new Set<SortKey>([
+  "aum",
+  "yield",
+  "ret3y",
+  "ret5y",
+  "avgVolume",
+  "expenseRatio",
+])
 
 export function screen(query: ScreenerQuery) {
   const needle = query.q.trim().toLowerCase()
@@ -88,6 +120,12 @@ export function screen(query: ScreenerQuery) {
   if (query.category) rows = rows.filter((e) => e.category === query.category)
   if (query.minAum !== null) rows = rows.filter((e) => (e.aum ?? 0) >= query.minAum!)
   if (query.minYield !== null) rows = rows.filter((e) => (e.yield ?? 0) >= query.minYield!)
+  if (query.feesOnly) rows = rows.filter((e) => e.expenseRatio !== null)
+  if (query.maxExpenseRatio !== null) {
+    rows = rows.filter(
+      (e) => e.expenseRatio !== null && e.expenseRatio <= query.maxExpenseRatio!
+    )
+  }
 
   const key = query.sort
   const sorted = [...rows].sort((a, b) => {
@@ -121,6 +159,7 @@ export function screen(query: ScreenerQuery) {
     page,
     pages,
     families: new Set(rows.map((r) => r.fundFamily)).size,
+    withFees: rows.filter((r) => r.expenseRatio !== null).length,
     totalAum,
     /** Category mix of the current result set, largest first. */
     categoryMix: Object.entries(
@@ -159,4 +198,21 @@ function bucketise(values: number[], edges: number[]) {
     }
   }
   return out
+}
+
+/**
+ * Funds tracking the same index. When two funds hold the same portfolio their
+ * returns are near-identical, so cost and liquidity are what actually differ.
+ */
+export function sameIndexPeers(symbol: string): DirectoryEntry[] {
+  const entry = DIRECTORY.find((e) => e.symbol === symbol.toUpperCase())
+  if (!entry?.tracks) return []
+  return DIRECTORY.filter((e) => e.tracks === entry.tracks && e.symbol !== entry.symbol)
+}
+
+export function bySymbols(symbols: readonly string[]): DirectoryEntry[] {
+  const wanted = symbols.map((s) => s.toUpperCase())
+  return wanted
+    .map((s) => DIRECTORY.find((e) => e.symbol === s))
+    .filter((e): e is DirectoryEntry => e !== undefined)
 }

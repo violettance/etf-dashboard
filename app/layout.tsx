@@ -14,6 +14,7 @@ const NAV = [
   { href: "/risk-return", label: "Risk & return" },
   { href: "/categories", label: "Categories" },
   { href: "/screener", label: "Screener" },
+  { href: "/compare", label: "Compare" },
   { href: "/news", label: "News sentiment" },
 ]
 

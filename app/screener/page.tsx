@@ -2,6 +2,7 @@ import Link from "next/link"
 import {
   CATEGORIES,
   SNAPSHOT_DATE,
+  VERIFIED_FEE_COUNT,
   SORT_KEYS,
   screen,
   type ScreenerQuery,
@@ -43,6 +44,11 @@ function parseQuery(sp: Record<string, string | string[] | undefined>): Screener
       const v = numOrNull("minYield")
       return v === null ? null : v / 100
     })(),
+    maxExpenseRatio: (() => {
+      const v = numOrNull("maxExpenseRatio")
+      return v === null ? null : v / 100
+    })(),
+    feesOnly: one("feesOnly") === "1",
     sort: (SORT_KEYS as readonly string[]).includes(sort) ? (sort as SortKey) : "aum",
     dir: one("dir") === "asc" ? "asc" : "desc",
     page: Number.parseInt(one("page"), 10) || 1,
@@ -57,6 +63,8 @@ function href(query: ScreenerQuery, overrides: Partial<ScreenerQuery>) {
   if (m.category) p.set("category", m.category)
   if (m.minAum !== null) p.set("minAum", String(m.minAum))
   if (m.minYield !== null) p.set("minYield", String(m.minYield * 100))
+  if (m.maxExpenseRatio !== null) p.set("maxExpenseRatio", String(m.maxExpenseRatio * 100))
+  if (m.feesOnly) p.set("feesOnly", "1")
   if (m.sort !== "aum") p.set("sort", m.sort)
   if (m.dir !== "desc") p.set("dir", m.dir)
   if (m.page > 1) p.set("page", String(m.page))
@@ -68,6 +76,7 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: "symbol", label: "Symbol", numeric: false },
   { key: "name", label: "Name", numeric: false },
   { key: "category", label: "Category", numeric: false },
+  { key: "expenseRatio", label: "Fee", numeric: true },
   { key: "aum", label: "Assets", numeric: true },
   { key: "yield", label: "Yield", numeric: true },
   { key: "ret3y", label: "3Y return", numeric: true },
@@ -82,7 +91,9 @@ export default async function DashboardPage({
 }) {
   const query = parseQuery(await searchParams)
   const result = screen(query)
-  const filtered = Boolean(query.q || query.category || query.minAum || query.minYield)
+  const filtered = Boolean(
+    query.q || query.category || query.minAum || query.minYield || query.maxExpenseRatio || query.feesOnly
+  )
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-8">
@@ -200,6 +211,30 @@ export default async function DashboardPage({
             className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
           />
         </div>
+        <div className="w-28">
+          <label htmlFor="maxExpenseRatio" className="mb-1 block text-xs font-medium text-slate-600">
+            Max fee (%)
+          </label>
+          <input
+            id="maxExpenseRatio"
+            name="maxExpenseRatio"
+            type="number"
+            min={0}
+            step={0.01}
+            defaultValue={query.maxExpenseRatio === null ? "" : query.maxExpenseRatio * 100}
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+          />
+        </div>
+        <label className="flex items-center gap-2 pb-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            name="feesOnly"
+            value="1"
+            defaultChecked={query.feesOnly}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          Verified fee only
+        </label>
         <button
           type="submit"
           className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
@@ -256,6 +291,17 @@ export default async function DashboardPage({
                   {row.name}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">{row.category}</td>
+                <td className="px-4 py-2.5 text-right tabular-nums">
+                  {row.expenseRatio === null ? (
+                    <span className="text-slate-300" title="Not verified">
+                      n/a
+                    </span>
+                  ) : (
+                    <span className={row.expenseRatio <= 0.001 ? "text-emerald-700" : ""}>
+                      {(row.expenseRatio * 100).toFixed(3)}%
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{money(row.aum)}</td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{pct(row.yield)}</td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{pct(row.ret3y, 1)}</td>
@@ -303,7 +349,10 @@ export default async function DashboardPage({
       )}
 
       <p className="mt-8 border-t border-slate-200 pt-6 text-xs leading-relaxed text-slate-500">
-        Table figures are from the {SNAPSHOT_DATE} snapshot and are not current. Empty cells mean
+        Fees are issuer-published figures verified by hand for {VERIFIED_FEE_COUNT} of the most
+        commonly compared funds; the rest show n/a rather than an estimate, because a wrong fee is
+        worse than a missing one. Other table figures are from the {SNAPSHOT_DATE} snapshot and are
+        not current. Empty cells mean
         the source had no value; they are never filled with estimates, and funds with no value sort
         last regardless of direction. This dashboard presents data for comparison and is not
         investment advice.
