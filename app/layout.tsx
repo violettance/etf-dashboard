@@ -38,7 +38,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             {children}
             <footer className="mt-14 border-t-2 border-[#0A0A0A] bg-white">
               <div className="flex flex-col gap-2 px-5 py-5 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                <span>Which ETF? · an independent Violettance data product</span>
                 <span>Data for comparison, not investment advice</span>
               </div>
             </footer>
