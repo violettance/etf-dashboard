@@ -1,6 +1,6 @@
 # Which ETF?
 
-An ETF comparison dashboard by Violettance. It turns a broad US-listed fund
+An ETF comparison dashboard. It turns a broad US-listed fund
 universe into a shortlist, then helps compare fees, assets, liquidity, yield,
 and historical returns. Every market snapshot is labelled with its source and
 capture date; missing fees are shown as unverified rather than guessed.
