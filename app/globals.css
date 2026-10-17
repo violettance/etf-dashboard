@@ -59,6 +59,11 @@
     color: #0a0a0a;
     background: #00e5ff;
   }
+
+  :focus-visible {
+    outline: 3px solid #007d89;
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
@@ -70,13 +75,15 @@
   }
 
   .nav-link {
-    display: inline-flex;
+    display: flex;
+    width: 100%;
     align-items: center;
+    justify-content: flex-start;
     border: 1.5px solid transparent;
     border-radius: 0.5rem;
-    padding: 0.45rem 0.7rem;
+    padding: 0.65rem 0.75rem;
     color: #475569;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     transition:
       color 150ms ease,

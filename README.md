@@ -5,9 +5,8 @@ universe into a shortlist, then helps compare fees, assets, liquidity, yield,
 and historical returns. Every market snapshot is labelled with its source and
 capture date; missing fees are shown as unverified rather than guessed.
 
-The interface is a portfolio example of decision-focused data design. It uses
-Productora's visual palette, while remaining an independent ETF project. It
-does not recommend funds or provide investment advice.
+The interface is a portfolio example of decision-focused data design. It does
+not recommend funds or provide investment advice.
 
 ## What it does
 
@@ -68,9 +67,6 @@ npm run build
 ## Stack
 
 Next.js App Router, React, TypeScript, Tailwind CSS, Recharts, Zod, and Vitest.
-The Productora palette uses coral `#FF3366`, cyan `#00E5FF`, charcoal `#0A0A0A`,
-and warm white `#F4F4F0`.
-
 ## License
 
 MIT. See [LICENSE](LICENSE).
