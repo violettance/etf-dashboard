@@ -63,8 +63,8 @@ export default async function PerformersPage({
             href={`/performers?by=${t.key}`}
             className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
               t.key === by
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
+                ? "border-[#0A0A0A] bg-[#FF3366] text-[#0A0A0A] shadow-[2px_2px_0_#0A0A0A]"
+                : "border-slate-300 bg-white text-slate-700 hover:border-[#0A0A0A] hover:bg-[#00E5FF]/25"
             }`}
           >
             {t.label}
@@ -72,7 +72,7 @@ export default async function PerformersPage({
         ))}
       </nav>
 
-      <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mb-6 surface-card p-4">
         <TopPerformersChart
           data={chartRows.map((r) => ({
             symbol: r.symbol,
@@ -82,7 +82,7 @@ export default async function PerformersPage({
         />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-x-auto surface-card">
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left">
             <tr>

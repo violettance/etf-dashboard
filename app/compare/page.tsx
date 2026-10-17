@@ -38,7 +38,7 @@ export default async function ComparePage({
         <p className="mt-2 text-sm text-slate-600">
           Add up to {MAX} symbols to see them side by side.
         </p>
-        <form method="get" className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+        <form method="get" className="mt-6 flex flex-wrap items-end gap-3 surface-card p-4">
           <div className="min-w-[280px] flex-1">
             <label htmlFor="symbols" className="mb-1 block text-xs font-medium text-slate-600">
               Symbols, comma separated
@@ -47,7 +47,7 @@ export default async function ComparePage({
               id="symbols"
               name="symbols"
               placeholder="VOO, SPY, IVV"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
             />
           </div>
           <button
@@ -120,7 +120,7 @@ export default async function ComparePage({
       )}
 
       {feeSpread !== null && feeSpread > 0 && (
-        <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mb-6 surface-card p-4">
           <h2 className="text-sm font-medium text-slate-700">What the fee difference costs</h2>
           <p className="mt-2 text-3xl font-semibold tabular-nums">
             $
@@ -137,7 +137,7 @@ export default async function ComparePage({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-x-auto surface-card">
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50">
             <tr>
@@ -187,7 +187,7 @@ export default async function ComparePage({
             id="symbols"
             name="symbols"
             defaultValue={funds.map((f) => f.symbol).join(", ")}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
           />
         </div>
         <button

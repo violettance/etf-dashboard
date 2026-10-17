@@ -163,7 +163,7 @@ export function universeStats() {
 /**
  * Concentration of the market by issuer.
  *
- * The ETF industry is far more concentrated than a count of 4,148 funds
+ * The ETF industry is far more concentrated than a count of thousands of funds
  * suggests: a small number of issuers hold most of the money. Showing fund
  * counts without this makes the market look more competitive than it is.
  */

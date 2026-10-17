@@ -92,7 +92,7 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
 
       {error && (
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-slate-700">
-          Live price history could not be loaded ({error}). The figures below are omitted rather
+          Recent price history could not be loaded ({error}). The figures below are omitted rather
           than estimated.
         </div>
       )}
@@ -114,18 +114,18 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
             />
           </section>
 
-          <div className="mb-2 rounded-lg border border-slate-200 bg-white p-4">
+          <div className="mb-2 surface-card p-4">
             <h2 className="mb-3 text-sm font-medium text-slate-700">45-day price trend</h2>
             <PriceTrendChart data={live.series} positive={up} />
           </div>
           <p className="mb-6 text-xs text-slate-500">
-            Live daily closes, {live.from} to {live.to}. Sharpe {live.sharpe.toFixed(2)}.
+            Daily closes from {live.from} to {live.to}. Sharpe {live.sharpe.toFixed(2)}.
           </p>
         </>
       )}
 
       {entry.expenseRatio !== null && (
-        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+        <section className="mb-6 surface-card p-4">
           <h2 className="text-sm font-medium text-slate-700">Cost</h2>
           <div className="mt-2 flex flex-wrap items-baseline gap-x-6 gap-y-1">
             <span className="text-3xl font-semibold tabular-nums">
@@ -168,7 +168,7 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
         </section>
       )}
 
-      <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+      <section className="mb-6 surface-card p-4">
         <h2 className="mb-3 text-sm font-medium text-slate-700">
           Snapshot figures{" "}
           <span className="font-normal text-slate-400">({SNAPSHOT_DATE}, not current)</span>
@@ -198,7 +198,7 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
           <h2 className="mb-3 text-sm font-medium text-slate-700">
             Largest other funds in {entry.category}
           </h2>
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <div className="overflow-hidden surface-card">
             <table className="w-full text-sm">
               <tbody>
                 {peers.map((p) => (

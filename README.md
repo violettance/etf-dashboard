@@ -1,142 +1,76 @@
 # Which ETF?
 
-A tool for comparing US-listed ETFs on the things that actually differ between
-them, cost, risk, liquidity and track record, with the numbers behind every
-figure shown in full.
+An ETF comparison dashboard by Violettance. It turns a broad US-listed fund
+universe into a shortlist, then helps compare fees, assets, liquidity, yield,
+and historical returns. Every market snapshot is labelled with its source and
+capture date; missing fees are shown as unverified rather than guessed.
 
-It does not recommend funds. It lines comparable funds up side by side and
-shows its working, so the conclusion is yours to draw.
+The interface is a portfolio example of decision-focused data design. It uses
+Productora's visual palette, while remaining an independent ETF project. It
+does not recommend funds or provide investment advice.
 
-**Runs with zero API keys.** Price data comes from sources that require no
-credentials.
+## What it does
 
----
+- **Overview:** puts market concentration, return weighting, liquidity, and
+  category-level patterns ahead of a raw fund-count summary.
+- **Screener:** searches by symbol, fund name, and issuer; filters by category,
+  assets, yield, and verified fee; supports sorting and pagination.
+- **Compare:** lines up as many as four funds and shows the differences that
+  matter for similar products.
+- **Fund detail:** fetches daily price history from Stooq and derives return,
+  volatility, drawdown, and Sharpe metrics. It also shows the dated snapshot
+  figures and verified issuer-published fees where available.
+- **Category analysis:** compares median returns for categories with enough
+  qualifying funds.
+- **Top performers and risk-return:** ranks funds by return or yield and shows
+  3-year against 5-year patterns, excluding leveraged, inverse, and smaller
+  funds where relevant.
+- **News sentiment:** displays topic-level Alpha Vantage results when an API
+  key is configured.
 
-## Why it works this way
+## Data and limitations
 
-Most ETF dashboards, including the first version of this one, chart the
-distribution of the whole ETF universe: median three-year returns, dividend
-yield histograms, category averages. Those charts are accurate and useless
-nobody makes a decision with the median five-year return of 4,000 funds.
+The directory contains 4,148 funds from Yahoo Finance via yfinance, captured
+on **May 25, 2025**. Its assets, yield, volume, and return fields are historical
+and should not be treated as current market data. The dashboard displays the
+snapshot age wherever those fields appear. Fund detail pages request daily
+history from Stooq separately; that request can be unavailable for some
+symbols or at some times.
 
-The problem people actually have is narrower: *these six funds look identical,
-which one do I buy?* That question has a real answer, and it is usually about
-cost and structure rather than performance. This tool is built around that
-question.
+Expense ratios are issuer-published values verified by hand for a subset of
+commonly compared funds. Other rows show `n/a`. The news view requires an
+Alpha Vantage key. There are no user accounts or personalized recommendations.
 
-### Curation is the product
+## Run locally
 
-The universe is ~40 funds, not ~4,000. Most US-listed ETFs are leveraged,
-thematic, or too small to trade cheaply, and nobody chooses among four thousand
-options. Narrowing the field to genuinely comparable funds is the point.
-
-The list lives in [`lib/data/universe.ts`](lib/data/universe.ts) and is
-versioned in git, so every change to it is visible in the history.
-
-### Reference data vs market data
-
-Expense ratios and inception dates are *reference* data: set by the issuer,
-changing roughly once a year. They are recorded in source with the date each
-figure was verified and a link to the issuer's own page.
-
-Everything that genuinely moves, price, volume, volatility, drawdown, is
-fetched live and never hardcoded.
-
-### Missing data is shown, not guessed
-
-When a dimension has no data it is excluded from the total and the remaining
-weight is rescaled, so a fund is never penalised for a missing figure. The
-coverage percentage is displayed alongside, so you can see how much of a score
-is actually evidenced. A fund with no data should not look like a fund with bad
-data.
-
----
-
-## Architecture
-
-```
-app/
-  page.tsx                  Goal selection
-  compare/[goalId]/         Side-by-side comparison, sorted by your weightings
-  methodology/              How every number is derived
-  api/
-    quote/[symbol]/         Live quote proxy      (keeps API keys server-side)
-    history/[symbol]/       Daily price history   (Stooq, no key required)
-lib/
-  config/env.ts             Zod-validated server env; throws if imported client-side
-  cache.ts                  TTL cache with stale-on-error semantics
-  providers/                One module per data source, behind a shared interface
-  data/                     Curated universe, goals and weightings
-  scoring/                  Pure metric and scoring functions (unit tested)
-```
-
-### Data sources
-
-| Source | Used for | Key required |
-|---|---|---|
-| Stooq | Daily closes, volume, volatility, drawdown | No |
-| Issuer reference data | Expense ratios, inception dates | No |
-| SEC EDGAR N-PORT | Holdings concentration *(planned)* | No |
-| Twelve Data | Live intraday quotes *(optional upgrade)* | Yes |
-| Financial Modeling Prep | Automated expense-ratio refresh *(optional)* | Yes |
-
-The two optional providers are exactly that, the app is fully functional
-without them.
-
----
-
-## Getting started
+Requirements: Node.js 20.9 or newer.
 
 ```bash
 git clone https://github.com/violettance/etf-dashboard.git
 cd etf-dashboard
-npm install
+npm ci
 npm run dev
 ```
 
-Open <http://localhost:3000>. No `.env.local` is needed.
+Open <http://localhost:3000>. The screener and historical directory work
+without API keys. To enable news sentiment, copy `.env.example` to
+`.env.local` and set `ALPHA_VANTAGE_API_KEY`. Keys are read on the server only.
 
-To enable the optional providers, copy `.env.example` to `.env.local` and fill
-in the keys you have. Note that none of them are prefixed `NEXT_PUBLIC_`: they
-are read only on the server, and `lib/config/env.ts` throws if it is imported
-from client code.
-
-### Scripts
-
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Development server |
-| `npm run build` | Production build |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint |
-| `npm test` | Vitest (watch) |
-| `npm test -- --run` | Vitest (once) |
-
----
-
-## Testing
-
-The scoring engine is written as pure functions specifically so it can be
-tested against known values rather than snapshots:
-
-- sample vs population standard deviation
-- beta of a 2× levered series against its benchmark
-- correlation of a perfectly inverse series
-- maximum drawdown measured from the running peak, not the starting value
-- funds not being penalised for a missing field that carries zero weight
+## Checks
 
 ```bash
+npm run typecheck
+npm run lint
 npm test -- --run
+npm run build
 ```
 
----
+## Stack
 
-## Not investment advice
-
-This tool presents published fund data for comparison. It does not know your
-circumstances, tax position or time horizon, and it does not recommend any
-fund. Past performance does not predict future results.
+Next.js App Router, React, TypeScript, Tailwind CSS, Recharts, Zod, and Vitest.
+The Productora palette uses coral `#FF3366`, cyan `#00E5FF`, charcoal `#0A0A0A`,
+and warm white `#F4F4F0`.
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

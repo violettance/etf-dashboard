@@ -9,7 +9,7 @@ export function PriceTrendChart({
   data: { date: string; close: number }[]
   positive: boolean
 }) {
-  const colour = positive ? "#059669" : "#dc2626"
+  const colour = positive ? "#008f9d" : "#d92352"
   return (
     <ResponsiveContainer width="100%" height={320}>
       <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 8 }}>

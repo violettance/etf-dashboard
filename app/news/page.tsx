@@ -12,18 +12,18 @@ import {
 export const revalidate = 10800
 
 const LABEL_STYLE: Record<string, string> = {
-  Bullish: "bg-emerald-100 text-emerald-800",
-  "Somewhat-Bullish": "bg-emerald-50 text-emerald-700",
+  Bullish: "bg-[#00E5FF]/40 text-slate-950",
+  "Somewhat-Bullish": "bg-[#00E5FF]/20 text-slate-800",
   Neutral: "bg-slate-100 text-slate-700",
-  "Somewhat-Bearish": "bg-rose-50 text-rose-700",
-  Bearish: "bg-rose-100 text-rose-800",
+  "Somewhat-Bearish": "bg-[#FF3366]/15 text-[#9f1239]",
+  Bearish: "bg-[#FF3366]/25 text-slate-950",
 }
 
 function SentimentMeter({ score }: { score: number }) {
   // Map -1..+1 onto 0..100 so the midpoint sits at neutral.
   const left = ((Math.max(-1, Math.min(1, score)) + 1) / 2) * 100
   return (
-    <div className="relative h-1.5 w-full rounded-full bg-gradient-to-r from-rose-200 via-slate-200 to-emerald-200">
+    <div className="relative h-1.5 w-full rounded-full bg-gradient-to-r from-[#FF3366]/50 via-slate-200 to-[#00E5FF]/70">
       <div
         className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 rounded bg-slate-900"
         style={{ left: `${left}%` }}
@@ -123,8 +123,8 @@ export default async function NewsPage({
           href="/news"
           className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
             topic === "all"
-              ? "border-slate-900 bg-slate-900 text-white"
-              : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
+              ? "border-[#0A0A0A] bg-[#FF3366] text-[#0A0A0A] shadow-[2px_2px_0_#0A0A0A]"
+              : "border-slate-300 bg-white text-slate-700 hover:border-[#0A0A0A] hover:bg-[#00E5FF]/25"
           }`}
         >
           All topics
@@ -135,8 +135,8 @@ export default async function NewsPage({
             href={`/news?topic=${t.key}`}
             className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
               t.key === topic
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
+              ? "border-[#0A0A0A] bg-[#FF3366] text-[#0A0A0A] shadow-[2px_2px_0_#0A0A0A]"
+              : "border-slate-300 bg-white text-slate-700 hover:border-[#0A0A0A] hover:bg-[#00E5FF]/25"
             }`}
           >
             {t.label}
@@ -163,7 +163,7 @@ export default async function NewsPage({
 
       {summary && (
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="surface-card p-4">
             <div className="text-xs text-slate-500">Average score</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums">
               {summary.mean > 0 ? "+" : ""}
@@ -173,19 +173,19 @@ export default async function NewsPage({
               <SentimentMeter score={summary.mean} />
             </div>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="surface-card p-4">
             <div className="text-xs text-slate-500">Bullish</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-700">
               {summary.counts.bullish}
             </div>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="surface-card p-4">
             <div className="text-xs text-slate-500">Neutral</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-slate-700">
               {summary.counts.neutral}
             </div>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="surface-card p-4">
             <div className="text-xs text-slate-500">Bearish</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-rose-700">
               {summary.counts.bearish}
@@ -196,7 +196,7 @@ export default async function NewsPage({
 
       <ul className="space-y-3">
         {items.map((item) => (
-          <li key={item.url} className="rounded-lg border border-slate-200 bg-white p-4">
+          <li key={item.url} className="surface-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <a
                 href={item.url}
@@ -244,7 +244,7 @@ export default async function NewsPage({
                       t.score > 0.15
                         ? "bg-emerald-50 text-emerald-700"
                         : t.score < -0.15
-                          ? "bg-rose-50 text-rose-700"
+                          ? "bg-[#FF3366]/15 text-[#9f1239]"
                           : "bg-slate-100 text-slate-600"
                     }`}
                   >
@@ -259,7 +259,7 @@ export default async function NewsPage({
       </ul>
 
       {items.length === 0 && !error && (
-        <p className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+        <p className="surface-card p-8 text-center text-sm text-slate-500">
           No articles returned for this topic.
         </p>
       )}

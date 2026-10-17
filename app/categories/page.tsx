@@ -40,7 +40,7 @@ export default async function CategoriesPage({
 
       <SnapshotBanner />
 
-      <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mb-6 surface-card p-4">
         <div className="mb-3 flex items-center gap-4 text-xs text-slate-600">
           <span className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-slate-900" /> Median 3Y
@@ -58,7 +58,7 @@ export default async function CategoriesPage({
         />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-x-auto surface-card">
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left">
             <tr>

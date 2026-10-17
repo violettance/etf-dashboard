@@ -15,17 +15,17 @@ import {
   ZAxis,
 } from "recharts"
 
-const INK = "#0f172a"
-const MUTED = "#94a3b8"
-const POS = "#059669"
-const NEG = "#dc2626"
+const INK = "#0a0a0a"
+const MUTED = "#00a7b8"
+const POS = "#008f9d"
+const NEG = "#d92352"
 
-const axis = { fontSize: 11, fill: "#64748b" }
+const axis = { fontSize: 11, fill: "#52525b" }
 const tooltipStyle = {
   fontSize: 12,
   borderRadius: 6,
-  border: "1px solid #e2e8f0",
-  boxShadow: "0 2px 8px rgba(15,23,42,.08)",
+  border: "1.5px solid #0a0a0a",
+  boxShadow: "3px 3px 0 rgba(10,10,10,.12)",
 }
 
 export function TopPerformersChart({
@@ -36,7 +36,7 @@ export function TopPerformersChart({
   return (
     <ResponsiveContainer width="100%" height={380}>
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 40, top: 4, bottom: 4 }}>
-        <CartesianGrid horizontal={false} stroke="#f1f5f9" />
+        <CartesianGrid horizontal={false} stroke="#e4e4e7" />
         <XAxis
           type="number"
           tick={axis}
@@ -53,7 +53,7 @@ export function TopPerformersChart({
           tickLine={false}
         />
         <Tooltip
-          cursor={{ fill: "#f8fafc" }}
+          cursor={{ fill: "#00e5ff", fillOpacity: 0.18 }}
           contentStyle={tooltipStyle}
           formatter={(v: number) => [`${v.toFixed(2)}%`, "Annualised return"]}
           labelFormatter={(label: string) => {
@@ -79,7 +79,7 @@ export function CategoryPerformanceChart({
   return (
     <ResponsiveContainer width="100%" height={420}>
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
-        <CartesianGrid horizontal={false} stroke="#f1f5f9" />
+        <CartesianGrid horizontal={false} stroke="#e4e4e7" />
         <XAxis
           type="number"
           tick={axis}
@@ -96,14 +96,14 @@ export function CategoryPerformanceChart({
           tickLine={false}
         />
         <Tooltip
-          cursor={{ fill: "#f8fafc" }}
+          cursor={{ fill: "#00e5ff", fillOpacity: 0.18 }}
           contentStyle={tooltipStyle}
           formatter={(v: number, n: string) => [
             `${v.toFixed(2)}%`,
             n === "ret3y" ? "Median 3Y" : "Median 5Y",
           ]}
         />
-        <Bar dataKey="ret3y" fill={INK} radius={[0, 2, 2, 0]} />
+        <Bar dataKey="ret3y" fill="#ff3366" radius={[0, 2, 2, 0]} />
         <Bar dataKey="ret5y" fill={MUTED} radius={[0, 2, 2, 0]} />
       </BarChart>
     </ResponsiveContainer>
@@ -118,7 +118,7 @@ export function ConsistencyScatter({
   return (
     <ResponsiveContainer width="100%" height={420}>
       <ScatterChart margin={{ left: 8, right: 16, top: 8, bottom: 16 }}>
-        <CartesianGrid stroke="#f1f5f9" />
+        <CartesianGrid stroke="#e4e4e7" />
         <XAxis
           type="number"
           dataKey="x"
@@ -146,11 +146,11 @@ export function ConsistencyScatter({
             { x: -40, y: -40 },
             { x: 60, y: 60 },
           ]}
-          stroke="#cbd5e1"
+          stroke="#71717a"
           strokeDasharray="4 4"
         />
-        <ReferenceLine x={0} stroke="#e2e8f0" />
-        <ReferenceLine y={0} stroke="#e2e8f0" />
+        <ReferenceLine x={0} stroke="#d4d4d8" />
+        <ReferenceLine y={0} stroke="#d4d4d8" />
         <Tooltip
           cursor={{ strokeDasharray: "3 3" }}
           contentStyle={tooltipStyle}

@@ -21,24 +21,24 @@ export default function RiskReturnPage() {
 
       <SnapshotBanner note="Open any fund for live volatility and drawdown." />
 
-      <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mb-4 surface-card p-4">
         <ConsistencyScatter data={points} />
       </div>
 
       <section className="mb-6 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold tabular-nums">{aboveLine}</div>
           <div className="mt-1 text-xs text-slate-600">
             funds well above the diagonal, recent strength that the longer record does not support
           </div>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold tabular-nums">{belowLine}</div>
           <div className="mt-1 text-xs text-slate-600">
             funds well below, a weaker recent run than their five-year record
           </div>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold tabular-nums">
             {points.length - aboveLine - belowLine}
           </div>
@@ -48,7 +48,7 @@ export default function RiskReturnPage() {
         </div>
       </section>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm leading-relaxed text-slate-700">
+      <div className="surface-card p-5 text-sm leading-relaxed text-slate-700">
         <h2 className="mb-2 font-medium">How to read this</h2>
         <p>
           The dashed diagonal marks funds whose three-year and five-year annualised returns are the

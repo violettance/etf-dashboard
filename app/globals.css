@@ -1,69 +1,170 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 60 15% 95%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262.1 83.3% 57.8%;
-    --radius: 0.5rem;
-    --chart-1: 262.1 83.3% 57.8%;
-    --chart-2: 197 71% 52%;
-    --chart-3: 142 71% 45%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 0 84% 60%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 346 100% 60%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 187 100% 50%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 60 10% 91%;
+    --muted-foreground: 215 10% 40%;
+    --accent: 187 100% 50%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 346 83% 44%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 12%;
+    --input: 0 0% 70%;
+    --ring: 346 100% 60%;
+    --radius: 0.625rem;
+    --chart-1: 346 100% 60%;
+    --chart-2: 187 100% 38%;
+    --chart-3: 0 0% 4%;
+    --chart-4: 45 100% 51%;
+    --chart-5: 268 78% 60%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 262.1 83.3% 57.8%;
-    --chart-1: 262.1 83.3% 57.8%;
-    --chart-2: 197 71% 52%;
-    --chart-3: 142 71% 45%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 0 84% 60%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Space Grotesk", Inter, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  ::selection {
+    color: #0a0a0a;
+    background: #00e5ff;
+  }
+}
+
+@layer components {
+  .surface-card {
+    border: 1.5px solid #0a0a0a;
+    border-radius: 0.625rem;
+    background: #fff;
+    box-shadow: 4px 4px 0 rgb(10 10 10 / 12%);
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    border: 1.5px solid transparent;
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.7rem;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition:
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .nav-link:hover {
+    border-color: #0a0a0a;
+    background: #00e5ff;
+    color: #0a0a0a;
+  }
+
+  .nav-link-active,
+  .nav-link-active:hover {
+    border-color: #0a0a0a;
+    background: #ff3366;
+    color: #0a0a0a;
+    box-shadow: 2px 2px 0 #0a0a0a;
+  }
+
+  .brand-hero {
+    border: 2px solid #0a0a0a;
+    border-radius: 0.75rem;
+    background: #0a0a0a;
+    box-shadow: 6px 6px 0 #ff3366;
+    color: white;
+  }
+
+  .brand-kicker {
+    color: #007d89;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .brand-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0a0a0a;
+    border-radius: 0.5rem;
+    background: #ff3366;
+    padding: 0.65rem 1rem;
+    color: #0a0a0a;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 3px 3px 0 rgb(255 255 255 / 35%);
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .brand-button:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 rgb(255 255 255 / 35%);
+  }
+
+  .brand-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0a0a0a;
+    border-radius: 0.5rem;
+    background: #00e5ff;
+    padding: 0.65rem 1rem;
+    color: #0a0a0a;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 3px 3px 0 rgb(255 255 255 / 35%);
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .brand-button-secondary:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 rgb(255 255 255 / 35%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

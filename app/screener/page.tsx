@@ -1,5 +1,6 @@
 import Link from "next/link"
 import {
+  DIRECTORY,
   CATEGORIES,
   SNAPSHOT_DATE,
   VERIFIED_FEE_COUNT,
@@ -93,35 +94,40 @@ export default async function DashboardPage({
   const query = parseQuery(await searchParams)
   const result = screen(query)
   const filtered = Boolean(
-    query.q || query.category || query.minAum || query.minYield || query.maxExpenseRatio || query.feesOnly
+    query.q ||
+      query.category ||
+      query.minAum !== null ||
+      query.minYield !== null ||
+      query.maxExpenseRatio !== null ||
+      query.feesOnly
   )
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">ETF Decision Dashboard</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight">ETF screener</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Narrow {nf.format(4148)} US-listed ETFs down to a shortlist worth comparing.
+          Narrow {nf.format(DIRECTORY.length)} US-listed ETFs down to a shortlist worth comparing.
         </p>
       </header>
 
-      <SnapshotBanner note="Open any fund for live prices and risk metrics." />
+      <SnapshotBanner note="Open any fund for recent daily prices and derived risk metrics." />
 
       {/* Where the current filters have got you. */}
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Current selection">
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold tabular-nums">{nf.format(result.total)}</div>
           <div className="text-xs text-slate-500">funds match</div>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold tabular-nums">{nf.format(result.families)}</div>
           <div className="text-xs text-slate-500">issuers</div>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold tabular-nums">{money(result.totalAum)}</div>
           <div className="text-xs text-slate-500">combined assets</div>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <div className="text-2xl font-semibold">
             {result.total <= 10 ? "Ready" : result.total <= 60 ? "Close" : "Broad"}
           </div>
@@ -137,13 +143,13 @@ export default async function DashboardPage({
 
       {/* Shape of the current selection. */}
       <section className="mb-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <h2 className="mb-3 text-sm font-medium text-slate-700">
             Largest categories {filtered && <span className="text-slate-400">in selection</span>}
           </h2>
           <CategoryMixChart data={result.categoryMix} />
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="surface-card p-4">
           <h2 className="mb-3 text-sm font-medium text-slate-700">
             Yield distribution {filtered && <span className="text-slate-400">in selection</span>}
           </h2>
@@ -152,7 +158,7 @@ export default async function DashboardPage({
       </section>
 
       {/* Filters */}
-      <form method="get" className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+      <form method="get" className="mb-4 flex flex-wrap items-end gap-3 surface-card p-4">
         <div className="min-w-[200px] flex-1">
           <label htmlFor="q" className="mb-1 block text-xs font-medium text-slate-600">
             Search
@@ -162,7 +168,7 @@ export default async function DashboardPage({
             name="q"
             defaultValue={query.q}
             placeholder="Symbol, name or issuer"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
           />
         </div>
         <div className="min-w-[190px]">
@@ -173,7 +179,7 @@ export default async function DashboardPage({
             id="category"
             name="category"
             defaultValue={query.category}
-            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-900"
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
           >
             <option value="">All</option>
             {CATEGORIES.map((c) => (
@@ -195,7 +201,7 @@ export default async function DashboardPage({
             step={1000000}
             defaultValue={query.minAum ?? ""}
             placeholder="e.g. 500000000"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
           />
         </div>
         <div className="w-28">
@@ -209,7 +215,7 @@ export default async function DashboardPage({
             min={0}
             step={0.1}
             defaultValue={query.minYield === null ? "" : query.minYield * 100}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
           />
         </div>
         <div className="w-28">
@@ -223,7 +229,7 @@ export default async function DashboardPage({
             min={0}
             step={0.01}
             defaultValue={query.maxExpenseRatio === null ? "" : query.maxExpenseRatio * 100}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#FF3366] focus:ring-2 focus:ring-[#FF3366]/20"
           />
         </div>
         <label className="flex items-center gap-2 pb-2 text-sm text-slate-700">
@@ -238,7 +244,7 @@ export default async function DashboardPage({
         </label>
         <button
           type="submit"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+          className="rounded-md border-2 border-[#0A0A0A] bg-[#FF3366] px-4 py-2 text-sm font-bold text-[#0A0A0A] shadow-[2px_2px_0_#0A0A0A] transition hover:-translate-y-0.5 hover:bg-[#ff5c83]"
         >
           Apply
         </button>
@@ -250,7 +256,7 @@ export default async function DashboardPage({
       </form>
 
       {/* Results */}
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-x-auto surface-card">
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left">
             <tr>

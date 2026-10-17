@@ -10,8 +10,8 @@ import {
   YAxis,
 } from "recharts"
 
-const BAR = "#0f172a"
-const BAR_MUTED = "#94a3b8"
+const BAR = "#ff3366"
+const BAR_MUTED = "#00a7b8"
 
 export function CategoryMixChart({ data }: { data: { name: string; count: number }[] }) {
   if (data.length === 0) return null
@@ -28,8 +28,8 @@ export function CategoryMixChart({ data }: { data: { name: string; count: number
           tickLine={false}
         />
         <Tooltip
-          cursor={{ fill: "#f1f5f9" }}
-          contentStyle={{ fontSize: 12, borderRadius: 6, border: "1px solid #e2e8f0" }}
+          cursor={{ fill: "#00e5ff", fillOpacity: 0.18 }}
+          contentStyle={{ fontSize: 12, borderRadius: 6, border: "1.5px solid #0a0a0a", boxShadow: "3px 3px 0 rgba(10,10,10,.12)" }}
           formatter={(value: number) => [`${value} funds`, ""]}
         />
         <Bar dataKey="count" radius={[0, 3, 3, 0]}>
@@ -54,7 +54,7 @@ export function YieldHistogram({ data }: { data: { label: string; count: number 
           contentStyle={{ fontSize: 12, borderRadius: 6, border: "1px solid #e2e8f0" }}
           formatter={(value: number) => [`${value} funds`, ""]}
         />
-        <Bar dataKey="count" fill={BAR} radius={[3, 3, 0, 0]} />
+        <Bar dataKey="count" fill={BAR_MUTED} radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

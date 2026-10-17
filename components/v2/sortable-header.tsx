@@ -51,7 +51,7 @@ export function SortableHeader({
       <Link
         href={`${basePath}?${search.toString()}`}
         title={title ?? `Sort by ${label.toLowerCase()}`}
-        className={`inline-flex items-center gap-1 rounded hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
+        className={`inline-flex items-center gap-1 rounded hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3366] ${
           numeric ? "flex-row-reverse" : ""
         }`}
       >

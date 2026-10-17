@@ -55,9 +55,9 @@ export function SnapshotBanner({ note }: { note?: string }) {
   const months = snapshotAgeMonths()
 
   return (
-    <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm">
+    <div className="mb-6 flex items-start gap-3 rounded-lg border-2 border-[#0A0A0A] border-l-[8px] border-l-[#FF3366] bg-white px-4 py-3 text-sm shadow-[3px_3px_0_rgba(10,10,10,0.12)]">
       <p className="flex-1">
-        <span className="font-medium text-slate-900">Snapshot data</span>{" "}
+        <span className="font-semibold text-slate-900">Historical snapshot</span>{" "}
         <span className="text-slate-600">
           captured{" "}
           <time dateTime={SNAPSHOT_DATE} className="font-medium text-slate-900">
@@ -68,14 +68,14 @@ export function SnapshotBanner({ note }: { note?: string }) {
             })}
           </time>{" "}
           from {SNAPSHOT_SOURCE}, roughly {months} months old.{" "}
-          {note ?? "Open any fund for live prices."}
+          {note ?? "Open any fund for recent daily prices and derived risk metrics."}
         </span>
       </p>
       <button
         type="button"
         onClick={dismiss}
         aria-label="Dismiss snapshot notice"
-        className="-mr-1 -mt-0.5 shrink-0 rounded p-1 text-amber-800/70 transition-colors hover:bg-amber-100 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600"
+        className="-mr-1 -mt-0.5 shrink-0 rounded p-1 text-slate-500 transition-colors hover:bg-[#00E5FF]/30 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3366]"
       >
         <X className="h-4 w-4" />
       </button>
