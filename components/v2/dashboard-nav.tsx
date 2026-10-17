@@ -86,9 +86,6 @@ export function DashboardNav() {
             </p>
             <div className="space-y-1">{ANALYSIS_LINKS.map(link)}</div>
           </div>
-          <div className="mt-auto border-t border-slate-300 pt-4 text-xs leading-relaxed text-slate-500">
-            Data for comparison, not investment advice.
-          </div>
         </nav>
       </aside>
     </>

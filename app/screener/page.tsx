@@ -103,7 +103,7 @@ export default async function DashboardPage({
   )
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-8">
+    <main className="mr-auto max-w-7xl px-6 py-8">
       <header className="mb-6">
         <h1 className="font-display text-2xl font-bold tracking-tight">ETF screener</h1>
         <p className="mt-1 text-sm text-slate-600">

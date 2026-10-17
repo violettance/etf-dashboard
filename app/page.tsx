@@ -35,7 +35,7 @@ export default function OverviewPage() {
   const thin = thinlyTraded()
 
   return (
-    <main className="mx-auto max-w-7xl px-5 py-7 sm:px-6 sm:py-9">
+    <main className="mr-auto max-w-7xl px-5 py-7 sm:px-6 sm:py-9">
       <SnapshotBanner />
 
       <section className="brand-hero relative mb-8 grid gap-8 overflow-hidden p-6 sm:p-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">

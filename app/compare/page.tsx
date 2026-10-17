@@ -33,7 +33,7 @@ export default async function ComparePage({
 
   if (funds.length === 0) {
     return (
-      <main className="mx-auto max-w-4xl px-6 py-8">
+      <main className="mr-auto max-w-4xl px-6 py-8">
         <h1 className="text-2xl font-semibold tracking-tight">Compare funds</h1>
         <p className="mt-2 text-sm text-slate-600">
           Add up to {MAX} symbols to see them side by side.
@@ -101,7 +101,7 @@ export default async function ComparePage({
   ]
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mr-auto max-w-6xl px-6 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">Compare funds</h1>
         <p className="mt-1 text-sm text-slate-600">

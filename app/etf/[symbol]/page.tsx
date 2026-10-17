@@ -75,7 +75,7 @@ export default async function EtfPage({ params }: { params: Promise<{ symbol: st
   const up = (live?.changePct ?? 0) >= 0
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-8">
+    <main className="mr-auto max-w-5xl px-6 py-8">
       <nav className="mb-6 text-sm">
         <Link href="/screener" className="text-slate-600 hover:text-slate-900">
           ← Back to screener

@@ -29,7 +29,7 @@ export default async function CategoriesPage({
   const rows = categoryPerformance(20, { by: sortBy, dir })
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mr-auto max-w-6xl px-6 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">Category performance</h1>
         <p className="mt-1 text-sm text-slate-600">

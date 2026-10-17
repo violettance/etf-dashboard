@@ -91,7 +91,7 @@ export default async function NewsPage({
 
   if (!alphaVantageNews.available) {
     return (
-      <main className="mx-auto max-w-4xl px-6 py-8">
+      <main className="mr-auto max-w-4xl px-6 py-8">
         <h1 className="text-2xl font-semibold tracking-tight">News sentiment</h1>
         <div className="mt-6 rounded-lg border border-slate-300 bg-white p-6 text-sm">
           <p className="font-medium">Not configured</p>
@@ -109,7 +109,7 @@ export default async function NewsPage({
   const summary = summarise(items)
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-8">
+    <main className="mr-auto max-w-5xl px-6 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">News sentiment</h1>
         <p className="mt-1 text-sm text-slate-600">
